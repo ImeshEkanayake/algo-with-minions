@@ -37,7 +37,7 @@
     const position=document.createElement('span');position.className='position';node.append(value,svg,identity,cap,position);$('stage').append(node);state.figures.set(item.id,{node,svg,height,position,value:item.v,jump:null});
   }
   function buildCode(meta){
-    $('code').replaceChildren();const keywords=new Set('def if elif else for while in return break and not from import True False None'.split(' '));
+    $('code').replaceChildren();$('code').dataset.playbackStep='';const keywords=new Set('def if elif else for while in return break and not from import True False None'.split(' '));
     for(let i=0;i<meta.code.length;i++){const row=document.createElement('div');row.className='code-row';row.dataset.line=i+1;const ln=document.createElement('span');ln.className='line-number';ln.textContent=i+1;const code=document.createElement('code');
       const text=meta.code[i],pattern=/\b(?:def|if|elif|else|for|while|in|return|break|and|not|from|import|True|False|None)\b|\b\d+\b|\b[A-Za-z_]+(?=\()/g;let end=0,m;
       while((m=pattern.exec(text))){code.append(document.createTextNode(text.slice(end,m.index)));const span=document.createElement('span');span.className=keywords.has(m[0])?'token-keyword':/^\d/.test(m[0])?'token-number':'token-function';span.textContent=m[0];code.append(span);end=m.index+m[0].length;}code.append(document.createTextNode(text.slice(end)));row.append(ln,code);$('code').append(row);
@@ -132,8 +132,12 @@
     }
     $('stack').replaceChildren();for(const f of s.frames){const li=document.createElement('li');li.textContent=`${f.name}(${Object.entries(f.locals).filter(([k])=>k!=='a').map(([k,v])=>`${k}=${watch(v)}`).join(', ')})`;$('stack').append(li);}
     if(!s.frames.length){const li=document.createElement('li');li.textContent=s.done?'All calls returned':'Top level';$('stack').append(li);}$('stack-size').textContent=`(${s.frames.length})`;
-    for(const row of $('code').children){const current=Number(row.dataset.line)===s.line;row.dataset.current=String(current);if(current){row.setAttribute('aria-current','step');const pane=$('code');if(row.offsetTop<pane.scrollTop)pane.scrollTop=row.offsetTop;else if(row.offsetTop+row.offsetHeight>pane.scrollTop+pane.clientHeight)pane.scrollTop=row.offsetTop+row.offsetHeight-pane.clientHeight;}else row.removeAttribute('aria-current');}
+    let activeRow=null;for(const row of $('code').children){const current=Number(row.dataset.line)===s.line;if(row.dataset.current==='true'&&(!current||!state.playing))row.getAnimations().forEach(animation=>animation.cancel());row.dataset.current=String(current);if(current){row.setAttribute('aria-current','step');activeRow=row;}else row.removeAttribute('aria-current');}
+    if(activeRow){const pane=$('code'),box=pane.getBoundingClientRect(),line=activeRow.getBoundingClientRect(),top=line.top-box.top+pane.scrollTop;if(line.top<box.top||line.bottom>box.bottom)pane.scrollTop=Math.max(0,top-(pane.clientHeight-activeRow.offsetHeight)/2);if(state.playing&&pane.dataset.playbackStep!==String(state.cursor)&&!matchMedia('(prefers-reduced-motion: reduce)').matches)activeRow.animate([{backgroundColor:'#365575'},{backgroundColor:'#1c344d'}],{duration:450});pane.dataset.playbackStep=String(state.cursor);}
     $('current-line').textContent=s.line?`line ${s.line}`:'';
+    $('executing-line').hidden=!activeRow;$('executing-line-label').textContent=s.line?`Python line ${s.line}`:'Python line';$('executing-line-code').textContent=activeRow?state.bundle.meta.code[s.line-1].trim():'';
+    if(state.playing&&activeRow){const box=$('executing-line').getBoundingClientRect();if(box.bottom>innerHeight)window.scrollBy({top:box.bottom-innerHeight+12,behavior:'instant'});}
+
   }
   function render(){
     if(!state.bundle||!['sorting','searching','trees','graphs'].includes(state.category))return;const s=snapshot();renderScene(s);renderInspector(s);$('array-readout').textContent=isGraph()?s.view.vertices.map((name,i)=>name+'='+i).join(', '):`[${(isTree()?s.view.inorder:s.items.map(x=>x.v)).map(number).join(', ')}]`;$('comparisons').textContent=`${s.comparisons} ${isGraph()?'executed lines':'comparisons'}`;$('exchanges').textContent=`${s.exchanges} ${state.id==='pancake'?'flips':'exchanges'}`;

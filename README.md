@@ -8,6 +8,8 @@ Searching: linear, sentinel, binary and ternary. Sentinel is clearly labelled as
 
 Every Sorting, Searching, Trees and Graphs algorithm has a visible Custom input action. It pauses playback and focuses the appropriate editor while retaining the current data as a starting point. Sorting accepts an array; searching an array and target; trees an insertion order and operation key; graphs vertices, weighted edges and applicable settings. Apply starts the selected algorithm with the entered input.
 
+The highlighted Python line follows every displayed execution step in both playback modes. A current-line strip in the sticky playback controls keeps that code visible while watching the animation, even when the full inspector is below the viewport. The code pane scrolls to the active line and repeated executions pulse during Quick Run (except with reduced motion).
+
 Controls include one-second Quick Run/Pause toggles in both control bars, individual executed-line steps in both directions, restart, scoped live variables, call stacks and code-header playback and Reset buttons with instant descriptions that dismiss after three seconds. State history includes arrays, counters, recursion levels, temporary values and algorithm-confirmed final positions. Animation metadata is kept outside the displayed Python.
 
 Numeric input supports finite JavaScript numbers, including negatives, zero, decimals and scientific notation. Plain integer literals outside the exact JavaScript integer range are rejected. Standard algorithms accept up to 10 values; exhaustive sort accepts up to 6. Empty arrays are supported. Ordered-key counting includes comparison-based key compression, so its displayed bound is O(n + k log k).
