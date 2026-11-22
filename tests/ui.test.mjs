@@ -19,7 +19,7 @@ try{
   await page.locator('#back').click();assert.equal((await snapshot()).done,undefined,id);await page.locator('#next').click();assert.deepEqual(await snapshot(),s,id);
  }
  await page.selectOption('#algorithm-select','bubble');await page.locator('#array-input').fill('5, 1, 4, 2, 8, 3');await page.locator('#apply-array').click();
- await page.locator('#play').click();const first=await page.evaluate(()=>SortingStudio.history().cursor);await page.waitForTimeout(1150);assert((await page.evaluate(()=>SortingStudio.history().cursor))>first);await page.locator('#play').click();const paused=await snapshot();await page.waitForTimeout(1050);assert.deepEqual(await snapshot(),paused);
+ await page.locator('#play').click();const first=await page.evaluate(()=>SortingStudio.history().cursor);await page.waitForTimeout(1150);assert((await page.evaluate(()=>SortingStudio.history().cursor))>first);await page.locator('#pause').click();const paused=await snapshot();await page.waitForTimeout(1050);assert.deepEqual(await snapshot(),paused);
  await page.locator('#restart').click();await page.locator('#array-input').fill('1, NaN');await page.locator('#apply-array').click();assert(await page.locator('#input-error').isVisible());
  await page.locator('#array-input').fill('1, 2, 3');await page.locator('#apply-array').click();assert.equal(await page.locator('.character[data-final="true"]').count(),0);
  await page.locator('[data-category="searching"]').click();assert(await page.locator('#future-page').isVisible());await page.locator('#return-sorting').click();assert(await page.locator('#sorting-page').isVisible());

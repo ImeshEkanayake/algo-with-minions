@@ -4,7 +4,7 @@ A responsive, front-end-only sorting explorer. Open `index.html` in a modern bro
 
 Implemented: bubble, selection, insertion, merge, quick, heap, ordered-key counting, pancake and exhaustive sorting.
 
-Controls include one-second quick playback, individual executed-line steps in both directions, restart, scoped live variables, call stacks and code-header playback buttons. State history includes arrays, counters, recursion levels, temporary values and algorithm-confirmed final positions. Animation metadata is kept outside the displayed Python.
+Controls include one-second quick playback, individual executed-line steps in both directions, separate Pause buttons, restart, scoped live variables, call stacks and code-header playback buttons with instant descriptions that dismiss after three seconds. State history includes arrays, counters, recursion levels, temporary values and algorithm-confirmed final positions. Animation metadata is kept outside the displayed Python.
 
 Numeric input supports finite JavaScript numbers, including negatives, zero, decimals and scientific notation. Plain integer literals outside the exact JavaScript integer range are rejected. Standard algorithms accept up to 10 values; exhaustive sort accepts up to 6. Empty arrays are supported. Ordered-key counting includes comparison-based key compression, so its displayed bound is O(n + k log k).
 
