@@ -1,6 +1,6 @@
 # Algo with Minions
 
-A responsive, front-end-only sorting and searching explorer. Open `index.html` in a modern browser, or serve this directory as a static website. No build, database or external assets are required. Array input and saved preferences remain in the browser.
+A responsive, front-end-only sorting, searching and tree algorithms explorer. Open `index.html` in a modern browser, or serve this directory as a static website. No build, database or external assets are required. Array input and saved preferences remain in the browser.
 
 Sorting: bubble, selection, insertion, merge, quick, heap, ordered-key counting, pancake and exhaustive sorting.
 
@@ -10,13 +10,20 @@ Controls include one-second Quick Run/Pause toggles in both control bars, indivi
 
 Numeric input supports finite JavaScript numbers, including negatives, zero, decimals and scientific notation. Plain integer literals outside the exact JavaScript integer range are rejected. Standard algorithms accept up to 10 values; exhaustive sort accepts up to 6. Empty arrays are supported. Ordered-key counting includes comparison-based key compression, so its displayed bound is O(n + k log k).
 
-Sorting and array Searching are implemented. Trees has grouped navigation for binary search trees, balanced trees (AVL and 2–3), and multiway trees. Individual tree entries and the separate Graphs collection are clearly marked as previews awaiting their animations. Tree and hash lookups from the course are planned extensions.
+Trees: BSTs, AVL trees, 2–3 trees, and balanced multiway trees (orders 3–6). Each family supports search, insert, delete, construction, preorder, inorder and postorder. Enter an insertion order of up to 16 finite keys and an operation key; duplicates follow set semantics and are ignored. Each run starts from the configured insertion order. Construction starts from empty. Worked examples cover leaf/one-child/two-child deletion, all four AVL rotation patterns, and 2–3 split/merge cascades. Node references, child pointers, heights, temporary held nodes/keys, traversal output and call stacks are visible and reversible. Key characters retain identities as nodes rotate, successors move and promoted keys change boxes. Pan/zoom controls keep larger trees readable, and completion recentres the final tree.
+
+The tree programs displayed in the Python panel are executed by a small browser-local interpreter for the trusted bundled programs. There is no Python server or arbitrary code execution input. Sources live in `tree-sources/`; regenerate their browser bundle with `npm run bundle:trees` after editing. The Python parity test verifies line execution and locals against actual Python. Multiway search is covered in the course; the balanced B-tree insertion/deletion implementation extends that demonstration.
+
+Graphs remains a collection preview, and hashing remains a planned searching extension. This release focuses on Trees.
 
 Validation:
 
 - `node tests/engine.test.cjs`: 411 algorithm/input runs and 40,146 immutable snapshots, including negative/positive values, zero, decimals, duplicates, extremes and empty arrays.
 - `node tests/search-engine.test.cjs`: 1,136 searches and 16,973 snapshots, including sentinel restoration, duplicate/missing targets, extremes and signed zero. A Python 3 differential check executes the displayed source and compares all lines and locals against 72 JavaScript traces. Python is a development verification dependency only.
 - `tests/search-ui.test.mjs`: all four searching flows, target/ordering validation, exact history, signed-zero persistence, reset and playback, grouped tree menus, graph preview, ten desktop widths and six touch widths.
+- `node tests/tree-engine.test.cjs`: 3,458 tree operations and 150,159 snapshots, checking BST ordering, AVL balance/stored heights, multiway occupancy and equal leaf depth, traversals, deletions, duplicates and immutable history.
+- `node tests/tree-python-parity.test.cjs`: 49 complete traces agree with actual Python lines, references, locals and call stacks.
+- `tests/tree-ui.test.mjs`: all four families and seven operations, worked examples, exact playback history, zoom, persistence, and desktop/touch containment.
 - Browser checks in `tests/ui.test.mjs`: nine sorting flows, exact backward/forward restoration, playback, input validation, recursion and containment at 10 widths from 320 to 1440 pixels.
 - `tests/code-controls.test.mjs`: synchronized header controls, pause state and touch-screen containment with 44-pixel controls.
 

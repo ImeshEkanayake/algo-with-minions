@@ -2,10 +2,13 @@
   "name": "algo-with-minions",
   "version": "1.0.0",
   "private": true,
-  "description": "A browser-only animated sorting and searching algorithms explorer",
+  "description": "A browser-only animated sorting, searching and tree algorithms explorer",
   "scripts": {
-    "test": "node tests/engine.test.cjs && node tests/search-engine.test.cjs",
-    "test:ui": "node tests/ui.test.mjs && node tests/code-controls.test.mjs && node tests/search-ui.test.mjs"
+    "test": "node tests/engine.test.cjs && node tests/search-engine.test.cjs && node tests/tree-engine.test.cjs && node tests/tree-python-parity.test.cjs",
+    "test:ui": "node tests/ui.test.mjs && node tests/code-controls.test.mjs && node tests/search-ui.test.mjs && node tests/tree-ui.test.mjs",
+    "bundle:trees": "python3 scripts/bundle-tree-programs.py"
   },
-  "devDependencies": {"playwright": "^1.56.0"}
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  }
 }
