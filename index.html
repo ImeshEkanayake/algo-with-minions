@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0a101b">
-  <meta name="description" content="Explore sorting algorithms with animated characters, reversible execution, Python code and live variables. Runs entirely in your browser.">
+  <meta name="description" content="Explore sorting and searching algorithms with animated characters, reversible execution, Python code and live variables. Runs entirely in your browser.">
   <title>Algo with Minions · Algorithm explorer</title>
   <link rel="stylesheet" href="styles.css">
   <script src="engine.js" defer></script>
+  <script src="search-engine.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -15,20 +16,23 @@
     <a class="brand" href="#sorting" aria-label="Algo with Minions home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Algo with <strong>Minions</strong></span></a>
     <nav class="category-nav" aria-label="Algorithm categories">
       <details id="sorting-menu" class="sort-menu"><summary id="sorting-nav">Sorting <span class="chevron" aria-hidden="true"></span></summary><div class="algorithm-menu" id="algorithm-menu" aria-label="Sorting algorithms"></div></details>
-      <button type="button" data-category="searching">Searching <span class="soon">Next</span></button>
-      <button type="button" data-category="graphs">Graphs <span class="soon">Later</span></button>
+      <details id="searching-menu" class="sort-menu"><summary data-category="searching">Searching <span class="chevron" aria-hidden="true"></span></summary><div id="searching-algorithm-menu" class="algorithm-menu" aria-label="Searching algorithms"></div></details>
+      <details id="trees-menu" class="sort-menu"><summary data-category="trees">Trees <span class="chevron" aria-hidden="true"></span></summary><div class="algorithm-menu tree-menu" aria-label="Tree algorithms"><p class="menu-group">Binary search trees</p><button type="button" data-tree="bst">Binary search tree <span class="planned">Planned</span></button><p class="menu-group">Balanced search trees</p><button type="button" data-tree="avl">AVL tree <span class="planned">Planned</span></button><button type="button" data-tree="two-three">2–3 tree <span class="planned">Planned</span></button><p class="menu-group">Multiway search trees</p><button type="button" data-tree="multiway">General multiway tree <span class="planned">Planned</span></button></div></details>
+      <button type="button" data-category="graphs">Graphs</button>
     </nav>
     <span class="browser-note">A visual algorithms lab</span>
   </header>
   <main>
     <section id="sorting-page" aria-labelledby="algorithm-title">
-      <div class="page-heading"><div><p class="eyebrow" id="algorithm-family">Brute force</p><h1 id="algorithm-title">Bubble sort</h1></div><div class="algorithm-facts"><span><small>Worst-case time</small><strong id="time-cost">O(n²)</strong></span><span><small>Extra space</small><strong id="space-cost">O(1)</strong></span><span><small>Equal values</small><strong id="stability">Stable</strong></span></div></div>
+      <div class="page-heading"><div><p class="eyebrow" id="algorithm-family">Brute force</p><h1 id="algorithm-title">Bubble sort</h1></div><div class="algorithm-facts"><span><small>Worst-case time</small><strong id="time-cost">O(n²)</strong></span><span><small>Extra space</small><strong id="space-cost">O(1)</strong></span><span><small id="detail-label">Equal values</small><strong id="stability">Stable</strong></span></div></div>
       <p id="algorithm-description" class="description"></p>
       <div class="setup panel">
         <label class="array-label" for="array-input"><span>Your array <small id="input-limit">Up to 10 numbers · negatives, zero & decimals</small></span><input id="array-input" value="5, 1, 4, 2, 8, 3" autocomplete="off" spellcheck="false" aria-describedby="input-error"></label>
+        <label id="target-label" class="target-label" for="target-input" hidden><span>Target</span><input id="target-input" value="3" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="input-error"></label>
         <button id="apply-array" type="button" class="button secondary">Apply array</button>
         <label class="algorithm-label" for="algorithm-select"><span>Algorithm</span><select id="algorithm-select"></select></label>
       </div>
+      <div id="search-help" class="search-help" hidden><p id="search-requirement"></p><button id="sort-search-input" class="button secondary" type="button">Sort input</button></div>
       <p class="error" id="input-error" role="alert" hidden></p>
       <div class="playback" aria-label="Execution controls">
         <button id="back" type="button" class="button secondary" aria-label="Previous executed line">Back<span class="wide-word"> line</span></button>
@@ -42,10 +46,12 @@
         <section class="visual-column" aria-label="Animated algorithm">
           <div class="scene panel">
             <div class="panel-heading"><h2>Watch it happen</h2><div class="counters"><span id="comparisons">0 comparisons</span><span id="exchanges">0 exchanges</span></div></div>
-            <div class="array-readout"><span>Working order</span><code id="array-readout"></code></div>
+            <div class="array-readout"><span id="array-label">Working order</span><code id="array-readout"></code></div>
+            <div id="search-result" class="search-result" role="status" hidden></div>
             <p id="stage-hint" class="stage-hint" hidden></p>
             <div id="stage-viewport" class="stage-viewport" tabindex="0" role="region" aria-label="Algorithm animation; scroll to explore deeper levels"><div id="stage" class="stage" role="img" aria-label="Array characters"></div></div>
-            <div class="legend"><span><i class="legend-pivot"></i> Pivot / current target</span><span><i class="legend-hat"></i> Confirmed final position</span><span>A, B, … identify the original values</span></div>
+            <div id="sorting-legend" class="legend"><span><i class="legend-pivot"></i> Pivot / current target</span><span><i class="legend-hat"></i> Confirmed final position</span><span>A, B, … identify the original values</span></div>
+            <div id="searching-legend" class="legend" hidden><span><i class="legend-pivot"></i> Current probe</span><span><i class="legend-match"></i> Match confirmed</span><span><i class="legend-eliminated"></i> Eliminated</span><span>A, B, … identify original positions</span></div>
           </div>
           <div class="operation panel"><span class="operation-label">This step</span><p id="operation" aria-live="polite">Choose Quick run or Next line to begin.</p></div>
           <section id="counting-panel" class="panel counting-panel" hidden aria-label="Counting sort counters"><div class="panel-heading"><h2 id="counting-phase">Frequencies</h2></div><div id="buckets" class="buckets"></div></section>
@@ -57,7 +63,7 @@
         </aside>
       </div>
     </section>
-    <section id="future-page" class="future-page panel" hidden><span class="eyebrow">THE NEXT CHAPTER</span><h1 id="future-title">Searching</h1><p id="future-copy"></p><button id="return-sorting" class="button primary" type="button">Explore sorting</button></section>
+    <section id="future-page" class="future-page panel" hidden><span class="eyebrow">Collection preview · coming next</span><h1 id="future-title">Searching</h1><p id="future-copy"></p><button id="return-sorting" class="button primary" type="button">Explore sorting</button></section>
   </main>
   <footer><span>One algorithm. Every little step.</span><span>Your arrays stay in this browser.</span></footer>
   <div id="control-tooltip" class="control-tooltip" role="tooltip" hidden></div>

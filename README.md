@@ -1,18 +1,22 @@
 # Algo with Minions
 
-A responsive, front-end-only sorting explorer. Open `index.html` in a modern browser, or serve this directory as a static website. No build, database or external assets are required. Array input and saved preferences remain in the browser.
+A responsive, front-end-only sorting and searching explorer. Open `index.html` in a modern browser, or serve this directory as a static website. No build, database or external assets are required. Array input and saved preferences remain in the browser.
 
-Implemented: bubble, selection, insertion, merge, quick, heap, ordered-key counting, pancake and exhaustive sorting.
+Sorting: bubble, selection, insertion, merge, quick, heap, ordered-key counting, pancake and exhaustive sorting.
+
+Searching: linear, sentinel, binary and ternary. Sentinel is clearly labelled as an extra beyond the course tutorials. Enter a target alongside the array. Linear and sentinel return the first matching index; binary and ternary return any matching index. Ordered searches reject descending input; the explicit Sort input action is available before trying again. Sentinel search visibly installs and restores its temporary last-element value. Characters retain their original columns, candidates fade as they are eliminated, and a green outline confirms the returned index. Sorting hats are reserved for sorting.
 
 Controls include one-second Quick Run/Pause toggles in both control bars, individual executed-line steps in both directions, restart, scoped live variables, call stacks and code-header playback and Reset buttons with instant descriptions that dismiss after three seconds. State history includes arrays, counters, recursion levels, temporary values and algorithm-confirmed final positions. Animation metadata is kept outside the displayed Python.
 
 Numeric input supports finite JavaScript numbers, including negatives, zero, decimals and scientific notation. Plain integer literals outside the exact JavaScript integer range are rejected. Standard algorithms accept up to 10 values; exhaustive sort accepts up to 6. Empty arrays are supported. Ordered-key counting includes comparison-based key compression, so its displayed bound is O(n + k log k).
 
-Sorting is implemented. Searching and Graphs are navigation destinations clearly marked as future collections.
+Sorting and array Searching are implemented. Trees has grouped navigation for binary search trees, balanced trees (AVL and 2–3), and multiway trees. Individual tree entries and the separate Graphs collection are clearly marked as previews awaiting their animations. Tree and hash lookups from the course are planned extensions.
 
 Validation:
 
 - `node tests/engine.test.cjs`: 411 algorithm/input runs and 40,146 immutable snapshots, including negative/positive values, zero, decimals, duplicates, extremes and empty arrays.
+- `node tests/search-engine.test.cjs`: 984 searches and 13,590 snapshots, including sentinel restoration, duplicate/missing targets, extremes and signed zero. A Python 3 differential check executes the displayed source and compares all lines and locals against 72 JavaScript traces. Python is a development verification dependency only.
+- `tests/search-ui.test.mjs`: all four searching flows, target/ordering validation, exact history, signed-zero persistence, reset and playback, grouped tree menus, graph preview, ten desktop widths and six touch widths.
 - Browser checks in `tests/ui.test.mjs`: nine sorting flows, exact backward/forward restoration, playback, input validation, recursion and containment at 10 widths from 320 to 1440 pixels.
 - `tests/code-controls.test.mjs`: synchronized header controls, pause state and touch-screen containment with 44-pixel controls.
 

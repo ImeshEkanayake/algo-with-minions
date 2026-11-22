@@ -148,7 +148,7 @@ a = exhaustive_sort(a)`)}
     if(parts.length>limit)throw Error(`Use at most ${limit} values for this algorithm.`);
     if(parts.some(p=>!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(p)))throw Error('Use numbers separated by commas or spaces, for example −2, 0, 1.5.');
     const values=parts.map(Number);
-    if(values.some(v=>!Number.isFinite(v)))throw Error('Use finite numbers; NaN and infinity cannot be sorted here.');
+    if(values.some(v=>!Number.isFinite(v)))throw Error('Use finite numbers; NaN and infinity are not supported.');
     if(parts.some((p,i)=>/^[+-]?\d+$/.test(p)&&!Number.isSafeInteger(values[i])))throw Error('An integer is outside JavaScript’s exact integer range. Use a smaller integer.');
     return values;
   }
