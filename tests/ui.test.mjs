@@ -1,3 +1,4 @@
+import {selectAlgorithm,algorithmCount} from './navigation.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -9,16 +10,16 @@ const finish=()=>page.locator('#next').evaluate(button=>{let n=0;while(!button.d
 try{
  await page.goto((process.env.PREVIEW_URL||'http://127.0.0.1:4318/'));
  await page.evaluate(()=>localStorage.clear());await page.reload();
- assert.equal(await page.locator('#algorithm-title').textContent(),'Bubble sort');assert.equal(await page.locator('#algorithm-select option').count(),9);
+ assert.equal(await page.locator('#algorithm-select').count(),0);assert.equal(await page.locator('#algorithm-title').textContent(),'Bubble sort');assert.equal(await algorithmCount(page),9);
  await page.locator('#next').click();await page.locator('#next').click();assert.equal(await page.locator('[data-variable="n"] .current-value').textContent(),'6');
  const before=await snapshot();await page.locator('#next').click();const after=await snapshot();await page.locator('#back').click();assert.deepEqual(await snapshot(),before);await page.locator('#next').click();assert.deepEqual(await snapshot(),after);
  for(const id of ['bubble','selection','insertion','merge','quick','heap','counting','pancake','exhaustive']){
-  await page.selectOption('#algorithm-select',id);await page.locator('#array-input').fill('-2.5, 0, 3.25, -1, 3.25');await page.locator('#apply-array').click();
+  await selectAlgorithm(page,id);await page.locator('#array-input').fill('-2.5, 0, 3.25, -1, 3.25');await page.locator('#apply-array').click();
   assert.equal(await page.locator('.character[data-final="true"]').count(),0);
   const steps=await finish();assert(steps<20000,id);const s=await snapshot();assert(s.done,id);assert.deepEqual(s.items.map(x=>x.v),[-2.5,-1,0,3.25,3.25],id);assert.equal(await page.locator('.character[data-final="true"]').count(),5,id);
   await page.locator('#back').click();assert.equal((await snapshot()).done,undefined,id);await page.locator('#next').click();assert.deepEqual(await snapshot(),s,id);
  }
- await page.selectOption('#algorithm-select','bubble');await page.locator('#array-input').fill('5, 1, 4, 2, 8, 3');await page.locator('#apply-array').click();
+ await selectAlgorithm(page,'bubble');await page.locator('#array-input').fill('5, 1, 4, 2, 8, 3');await page.locator('#apply-array').click();
  await page.locator('#play').click();const first=await page.evaluate(()=>SortingStudio.history().cursor);await page.waitForTimeout(1150);assert((await page.evaluate(()=>SortingStudio.history().cursor))>first);await page.locator('#play').click();const paused=await snapshot();await page.waitForTimeout(1050);assert.deepEqual(await snapshot(),paused);
  await page.locator('#restart').click();await page.locator('#array-input').fill('1, NaN');await page.locator('#apply-array').click();assert(await page.locator('#input-error').isVisible());
  await page.locator('#array-input').fill('1, 2, 3');await page.locator('#apply-array').click();assert.equal(await page.locator('.character[data-final="true"]').count(),0);
@@ -33,9 +34,9 @@ try{
   assert(bounds.watch.right<=width+1,`watch overflow ${width}`);
   if([1440,1024,768,375,320].includes(width))await page.screenshot({path:`test-results/layout-${width}.png`,fullPage:true});
  }
- await page.setViewportSize({width:1440,height:1100});await page.selectOption('#algorithm-select','quick');await page.locator('#array-input').fill('6, 3, 9, 1, 5, 8, 2, 7');await page.locator('#apply-array').click();
+ await page.setViewportSize({width:1440,height:1100});await selectAlgorithm(page,'quick');await page.locator('#array-input').fill('6, 3, 9, 1, 5, 8, 2, 7');await page.locator('#apply-array').click();
  await page.locator('#next').evaluate(button=>{for(let n=0;n<200;n++){button.click();if(document.querySelector('.character[data-final="true"]'))break;}});await page.waitForTimeout(600);await page.screenshot({path:'test-results/quicksort-active.png',fullPage:true});
- await page.selectOption('#algorithm-select','merge');await page.locator('#array-input').fill('-1.5, 3, 0, 2.25');await page.locator('#apply-array').click();
+ await selectAlgorithm(page,'merge');await page.locator('#array-input').fill('-1.5, 3, 0, 2.25');await page.locator('#apply-array').click();
  await page.locator('#next').evaluate(button=>{for(let n=0;n<15;n++)button.click();});const mergeBefore=await snapshot();await page.locator('#next').click();await page.locator('#back').click();assert.deepEqual(await snapshot(),mergeBefore);
  await page.setViewportSize({width:375,height:1000});await page.waitForTimeout(600);await page.screenshot({path:'test-results/merge-phone.png',fullPage:true});
  assert.deepEqual(errors,[]);

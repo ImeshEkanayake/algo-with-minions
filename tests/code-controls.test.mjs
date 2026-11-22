@@ -1,3 +1,4 @@
+import {selectAlgorithm,activeAlgorithm} from './navigation.mjs';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{})});
@@ -16,18 +17,18 @@ try{
  await page.mouse.move(0,0);await page.locator('#code-play').hover();assert(await page.locator('#control-tooltip').isVisible());await page.mouse.move(0,0);assert.equal(await page.locator('#control-tooltip').isVisible(),false);
  await page.locator('#restart').click();await page.locator('#play').click();await page.locator('#play').click();assert.equal(await page.locator('#mode').textContent(),'Paused');await page.locator('#restart').click();assert.equal(await page.locator('#mode').textContent(),'Ready');assert.match(await page.locator('#play').textContent(),/Quick run/);
  await page.locator('#code-play').click();await page.mouse.click(2,2);await page.keyboard.press('Space');assert.equal(await page.locator('#mode').textContent(),'Paused');await page.locator('#restart').click();
- await page.selectOption('#algorithm-select','quick');await page.locator('#array-input').fill('3, -2.5, 0, 3');await page.locator('#apply-array').click();
+ await selectAlgorithm(page,'quick');await page.locator('#array-input').fill('3, -2.5, 0, 3');await page.locator('#apply-array').click();
  const initial=await page.evaluate(()=>({snapshot:SortingStudio.snapshot(),history:SortingStudio.history()}));
  for(const mode of ['stepped','running','finished']){
   if(mode==='stepped')await page.locator('#code-next').click();
   else if(mode==='running')await page.locator('#code-play').click();
   else await page.locator('#code-next').evaluate(button=>{let n=0;while(!button.disabled&&n++<1000)button.click();});
-  await page.locator('#code-reset').click();assert.deepEqual(await page.evaluate(()=>({snapshot:SortingStudio.snapshot(),history:SortingStudio.history()})),initial);assert.equal(await page.locator('#mode').textContent(),'Ready');assert.equal(await page.locator('.character[data-final="true"]').count(),0);assert.equal(await page.locator('[data-current="true"]').count(),0);assert.equal(await page.locator('#array-input').inputValue(),'3, -2.5, 0, 3');assert.equal(await page.locator('#algorithm-select').inputValue(),'quick');
+  await page.locator('#code-reset').click();assert.deepEqual(await page.evaluate(()=>({snapshot:SortingStudio.snapshot(),history:SortingStudio.history()})),initial);assert.equal(await page.locator('#mode').textContent(),'Ready');assert.equal(await page.locator('.character[data-final="true"]').count(),0);assert.equal(await page.locator('[data-current="true"]').count(),0);assert.equal(await page.locator('#array-input').inputValue(),'3, -2.5, 0, 3');assert.equal(await activeAlgorithm(page),'quick');
   if(mode==='running'){await page.waitForTimeout(1100);assert.deepEqual(await page.evaluate(()=>({snapshot:SortingStudio.snapshot(),history:SortingStudio.history()})),initial);}
  }
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('algo-with-minions-v1')).step),-1);await page.reload();assert.deepEqual(await page.evaluate(()=>({snapshot:SortingStudio.snapshot(),history:SortingStudio.history()})),initial);
  await page.locator('#code-reset').hover();assert(await page.locator('#control-tooltip').isVisible());assert.match(await page.locator('#control-tooltip').textContent(),/Reset: restart/);await page.mouse.move(0,0);
- await page.selectOption('#algorithm-select','bubble');await page.locator('#array-input').fill('5, 1, 4, 2, 8, 3');await page.locator('#apply-array').click();
+ await selectAlgorithm(page,'bubble');await page.locator('#array-input').fill('5, 1, 4, 2, 8, 3');await page.locator('#apply-array').click();
  await page.screenshot({path:'test-results/code-controls-desktop.png',fullPage:true});
  const mobile=await browser.newPage({viewport:{width:320,height:950},isMobile:true,hasTouch:true,deviceScaleFactor:2});await mobile.goto((process.env.PREVIEW_URL||'http://127.0.0.1:4318/'));
  const bounds=await mobile.evaluate(()=>{const box=e=>{const b=e.getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};return {pageOverflow:document.documentElement.scrollWidth>innerWidth+1,title:box(document.querySelector('.code-header h2')),controls:box(document.querySelector('.code-controls')),language:box(document.querySelector('.code-language')),buttons:[...document.querySelectorAll('.code-controls button')].map(box),viewport:box(document.getElementById('stage-viewport')),figures:[...document.querySelectorAll('.character')].map(box)};});
@@ -38,7 +39,7 @@ try{
  }
  await mobile.setViewportSize({width:320,height:950});
  await mobile.locator('#code-next').click();assert.equal(await mobile.locator('#current-line').textContent(),'line 1');await mobile.locator('.code-header').screenshot({path:'test-results/code-controls-phone.png'});
- const errors=[];mobile.on('pageerror',e=>errors.push(e.message));await mobile.selectOption('#algorithm-select','quick');await mobile.locator('#array-input').fill('2, 1');await mobile.locator('#apply-array').click();
+ const errors=[];mobile.on('pageerror',e=>errors.push(e.message));await selectAlgorithm(mobile,'quick');await mobile.locator('#array-input').fill('2, 1');await mobile.locator('#apply-array').click();
  await mobile.locator('#code-next').evaluate(button=>{let n=0;while(!button.disabled&&n++<300)button.click();});assert.equal(await mobile.locator('#code-next').isDisabled(),true);assert.equal(await mobile.locator('#code-play').isDisabled(),true);await mobile.locator('#code-back').click();assert.equal(await mobile.locator('#code-next').isEnabled(),true);assert.deepEqual(errors,[]);
  console.log('PASS: Quick Run/Pause toggles synchronized across both locations, pause preserves history, resume/restart/completion, reset from stepped/running/finished states with persisted input and cleared history, space shortcut, immediate hover/focus tooltips with three-second dismissal, Escape/leave dismissal, 44px touch targets and 320px containment.');
 }finally{await browser.close();}
