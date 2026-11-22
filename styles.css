@@ -55,3 +55,5 @@
 .browser-note{display:grid;gap:.1rem;text-align:right;flex-shrink:0}.author-credit{color:var(--text);font-size:.8125rem}
 @media(max-width:1000px){.site-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.9rem 1rem}.site-header .brand{grid-column:1;grid-row:1;justify-self:start}.site-header .browser-note{grid-column:2;grid-row:1;margin-left:0}.site-header .category-nav{grid-column:1/-1;grid-row:2;margin-left:0}}
 @media(max-width:510px){.site-header{column-gap:.5rem}.site-header .brand{white-space:normal;min-width:0;font-size:.9375rem}.brand-mark{flex-shrink:0}.browser-note{max-width:148px;font-size:.75rem}.author-credit{font-size:.75rem}}
+
+.graph-direction-field{display:flex;align-items:center;min-height:44px;min-width:0;font-size:.875rem}

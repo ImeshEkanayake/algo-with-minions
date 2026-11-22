@@ -24,6 +24,7 @@
     traversal:()=>graph(letters(8),baseEdges.map(([u,v])=>[u,v,1])),
     weighted:()=>graph(letters(8),clone(baseEdges)),
     disconnected:()=>graph(letters(8),[[0,1,2],[1,2,0],[0,2,4],[3,4,-1],[4,5,2],[6,7,3]]),
+    'nonnegative-disconnected':()=>graph(letters(8),[[0,1,2],[1,2,0],[0,2,4],[3,4,1],[4,5,2],[6,7,3]]),
     dag:()=>graph(letters(8),clone(baseEdges),true),
     cycle:()=>graph(letters(4),[[0,1,1],[1,2,1],[2,0,1],[2,3,1]],true),
     negative:()=>graph(letters(4),[[0,1,2],[0,2,5],[1,2,-4],[2,3,2],[1,3,3]],true),
@@ -31,6 +32,7 @@
     flow:()=>graph(['S','A','B','C','D','T'],[[0,1,1],[0,2,1],[1,3,1],[1,4,1],[2,3,1],[3,5,1],[4,5,1]],true),
     colouring:()=>graph(letters(7),[[0,1,1],[0,2,1],[1,2,1],[1,3,1],[2,4,1],[3,4,1],[3,5,1],[4,6,1],[5,6,1]]),
     tsp:()=>graph(letters(5),[[0,1,4],[0,2,7],[0,3,3],[0,4,6],[1,2,2],[1,3,8],[1,4,5],[2,3,6],[2,4,3],[3,4,4]]),
+    'tsp-small':()=>graph(letters(4),[[0,1,3],[0,2,7],[0,3,2],[1,2,4],[1,3,6],[2,3,5]]),
     empty:()=>graph([],[])
   };
   const isFlow=id=>['ford-fulkerson','edmonds-karp'].includes(id),isColour=id=>['greedy-colouring','local-recolouring'].includes(id);

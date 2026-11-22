@@ -54,10 +54,10 @@
         <label class="graph-edges-input" for="graph-edges">Edges <small>One per line: from to weight · omit weight for 1</small><textarea id="graph-edges" rows="6" spellcheck="false" aria-describedby="input-error"></textarea></label>
         </div></details>
         <div class="graph-options">
-          <label class="graph-directed-label"><input id="graph-directed" type="checkbox"> Directed</label>
+          <div class="graph-direction-field"><label id="graph-direction-toggle" class="graph-directed-label"><input id="graph-directed" type="checkbox"><span id="graph-direction-choice">Directed</span></label><span id="graph-direction-fixed" hidden></span></div>
           <label for="graph-source">Start / source<select id="graph-source"></select></label>
           <label id="graph-sink-field" for="graph-sink">Destination / sink<select id="graph-sink"></select></label>
-          <label for="graph-example">Worked example<select id="graph-example"><option value="">Custom graph</option><option value="traversal">Traversal · 8 vertices</option><option value="weighted">Weighted · 8 vertices</option><option value="disconnected">Disconnected · zero &amp; negative edges</option><option value="dag">Directed acyclic graph</option><option value="cycle">Directed cycle</option><option value="negative">Negative edges · no cycle</option><option value="negative-cycle">Negative cycle</option><option value="flow">Flow · undo an earlier choice</option><option value="colouring">Colouring · 7 vertices</option><option value="tsp">Tour · 5 vertices</option><option value="empty">Empty graph</option></select></label>
+          <label for="graph-example">Worked example<select id="graph-example"><option value="">Custom graph</option></select></label>
           <label id="graph-colour-count-field" for="graph-colour-count">Available colours<select id="graph-colour-count"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
           <label id="graph-colours-field" for="graph-colours">Initial colours <small>One number 1–k per vertex · blank = all 1</small><input id="graph-colours" autocomplete="off" spellcheck="false" aria-describedby="input-error"></label>
           <button id="apply-graph" type="button" class="button secondary">Apply graph</button>

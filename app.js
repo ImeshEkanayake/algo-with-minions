@@ -176,13 +176,40 @@
   }
   const graphHelp='Vertex names identify the characters. Neighbours are explored in vertex-list order. Python variables use these 0-based vertex indices. Apply edits to start a new run. Zero-weight edges are real edges; blank pairs have no edge.';
   function configOrCurrent(){return state.graphConfig||graphs.example(state.id);}
+  const graphExampleCatalog={
+    bfs:[['traversal','Connected graph · 8 vertices'],['disconnected','Disconnected graph · 8 vertices'],['dag','Directed acyclic graph · 8 vertices'],['cycle','Directed cycle · 4 vertices'],['empty','Empty graph']],
+    dfs:[['traversal','Connected graph · 8 vertices'],['disconnected','Disconnected graph · 8 vertices'],['dag','Directed acyclic graph · 8 vertices'],['cycle','Directed cycle · 4 vertices'],['empty','Empty graph']],
+    topological:[['dag','Directed acyclic graph · 8 vertices'],['cycle','Cycle detection · 4 vertices'],['empty','Empty graph']],
+    prim:[['weighted','Connected weighted graph · 8 vertices'],['disconnected','Disconnected weighted graph · 8 vertices'],['traversal','Equal-weight graph · 8 vertices'],['empty','Empty graph']],
+    kruskal:[['weighted','Connected weighted graph · 8 vertices'],['disconnected','Disconnected weighted graph · 8 vertices'],['traversal','Equal-weight graph · 8 vertices'],['empty','Empty graph']],
+    dijkstra:[['weighted','Connected weighted graph · 8 vertices'],['nonnegative-disconnected','Disconnected graph · 8 vertices'],['dag','Weighted directed acyclic graph · 8 vertices'],['empty','Empty graph']],
+    warshall:[['dag','Directed acyclic graph · 8 vertices'],['cycle','Directed cycle · 4 vertices'],['disconnected','Disconnected graph · 8 vertices'],['empty','Empty graph']],
+    'floyd-warshall':[['weighted','Connected weighted graph · 8 vertices'],['negative','Negative edges · no negative cycle'],['negative-cycle','Negative cycle · 4 vertices'],['nonnegative-disconnected','Disconnected graph · 8 vertices'],['empty','Empty graph']],
+    'ford-fulkerson':[['flow','Reverse-flow example · 6 vertices'],['empty','Empty network']],
+    'edmonds-karp':[['flow','Augmenting paths · 6 vertices'],['empty','Empty network']],
+    'greedy-colouring':[['colouring','Colouring example · 7 vertices'],['traversal','Connected graph · 8 vertices'],['empty','Empty graph']],
+    'local-recolouring':[['colouring','Conflict reduction · 7 vertices'],['traversal','Connected graph · 8 vertices'],['empty','Empty graph']],
+    tsp:[['tsp','Weighted tour · 5 vertices'],['tsp-small','Weighted tour · 4 vertices'],['cycle','No complete tour · 4 vertices'],['empty','Empty graph']]
+  };
+  function graphSignature(config){
+    const edges=config.edges.map(([u,v,w])=>!config.directed&&u>v?[v,u,w]:[u,v,w]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);
+    return JSON.stringify([config.vertices,config.directed,edges]);
+  }
+  function availableGraphExamples(){return graphExampleCatalog[state.id].filter(([id])=>{try{graphs.validate(state.id,graphExample(id));return true;}catch{return false;}});}
+
   function populateGraph(config){
     $('graph-input-summary').textContent=config.vertices.length+' vertices, '+config.edges.length+' edges';$('graph-vertices').value=config.vertices.join(', ');$('graph-edges').value=config.edges.map(([u,v,w])=>config.vertices[u]+' '+config.vertices[v]+' '+number(w)).join('\n');$('graph-directed').checked=config.directed;
     for(const [id,value]of [['graph-source',config.source],['graph-sink',config.sink]]){$(id).replaceChildren();for(let i=0;i<config.vertices.length;i++){const option=document.createElement('option');option.value=config.vertices[i];option.textContent=config.vertices[i];$(id).append(option);}$(id).value=config.vertices[value]||'';$(id).disabled=!config.vertices.length;}
     const usesSource=['bfs','dfs','prim','dijkstra','tsp','ford-fulkerson','edmonds-karp'].includes(state.id);$('graph-source').disabled=!usesSource||!config.vertices.length;$('graph-sink-field').hidden=!['dijkstra','ford-fulkerson','edmonds-karp'].includes(state.id);
-    $('graph-colour-count-field').hidden=state.id!=='local-recolouring';$('graph-colours-field').hidden=state.id!=='local-recolouring';$('graph-colour-count').value=String(config.k);$('graph-colours').value=config.colours.map(c=>c+1).join(', ');$('graph-example').value='';$('graph-example').dataset.applied='';
-    for(const option of $('graph-example').options){if(!option.value)continue;option.dataset.label??=option.textContent;let reason='';try{graphs.validate(state.id,graphExample(option.value));}catch(e){reason=e.message;}option.disabled=Boolean(reason);option.title=reason;option.textContent=option.dataset.label+(reason?' · unavailable':'');}
-    $('graph-help').textContent=(state.id==='tsp'?'TSP supports up to 7 vertices; 8-vertex examples are unavailable. ':'')+graphHelp;
+    $('graph-colour-count-field').hidden=state.id!=='local-recolouring';$('graph-colours-field').hidden=state.id!=='local-recolouring';$('graph-colour-count').value=String(config.k);$('graph-colours').value=config.colours.map(c=>c+1).join(', ');
+    const direction=graphs.isFlow(state.id)||state.id==='topological'?true:['prim','kruskal'].includes(state.id)||graphs.isColour(state.id)?false:null;
+    $('graph-direction-toggle').hidden=direction!==null;$('graph-directed').hidden=direction!==null;$('graph-directed').disabled=direction!==null;$('graph-direction-choice').hidden=direction!==null;$('graph-direction-fixed').hidden=direction===null;$('graph-direction-fixed').textContent=direction?'Directed graph':'Undirected graph';
+    const choices=availableGraphExamples(),signature=graphSignature(config),preferred=$('graph-example').dataset.applied;
+    const matches=choices.filter(([id])=>graphSignature(graphExample(id))===signature),match=matches.find(([id])=>id===preferred)||matches[0];
+    $('graph-example').replaceChildren();if(!match){const option=document.createElement('option');option.value='';option.textContent='Custom graph';$('graph-example').append(option);}
+    for(const[id,label]of choices){const option=document.createElement('option');option.value=id;option.textContent=label;$('graph-example').append(option);}
+    $('graph-example').value=match?.[0]||'';$('graph-example').dataset.applied=match?.[0]||'';
+    $('graph-help').textContent=(state.id==='tsp'?'TSP supports up to 7 vertices. ':'')+graphHelp;
   }
   function startGraph(id,config,step=-1){const old=state.graphConfig;try{state.graphConfig=graphs.validate(id,config);startRun(id,[],step,0);}catch(e){state.graphConfig=old;throw e;}}
   function applyGraph(){try{const config=graphs.parse(state.id,{vertices:$('graph-vertices').value,edges:$('graph-edges').value,directed:$('graph-directed').checked,source:$('graph-source').value,sink:$('graph-sink').value,k:$('graph-colour-count').value,colours:$('graph-colours').value});startGraph(state.id,config);save();}catch(e){stop();render();error(e.message);}}
@@ -193,7 +220,7 @@
   function graphExample(preset){const config=graphs.examples[preset]();if(preset==='empty')config.directed=state.graphConfig.directed;return config;}
   $('graph-example').addEventListener('change',event=>{
     const preset=event.target.value;if(!preset)return;const previous=event.target.dataset.applied||'';
-    try{startGraph(state.id,graphExample(preset));$('graph-example').value=preset;$('graph-example').dataset.applied=preset;save();}
+    try{if(!availableGraphExamples().some(([id])=>id===preset))throw Error('Choose a worked example for the selected algorithm.');startGraph(state.id,graphExample(preset));$('graph-example').value=preset;$('graph-example').dataset.applied=preset;save();}
     catch(e){event.target.value=previous;stop();render();error(e.message);}
   });
   $('graph-zoom-in').addEventListener('click',()=>graphRenderer.setZoom(.2));$('graph-zoom-out').addEventListener('click',()=>graphRenderer.setZoom(-.2));$('graph-center').addEventListener('click',()=>graphRenderer.fit());
