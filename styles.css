@@ -28,3 +28,5 @@
 @media(max-width:510px){.category-nav summary{gap:.3rem}.category-nav .chevron{width:5px;height:5px;margin-left:0}.category-nav summary{font-size:.75rem}.tree-menu{min-width:0}}
 
 .search-sizes{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin:.8rem .1rem 0}.search-sizes>span{font-size:.8125rem;color:var(--muted);margin-right:.25rem}.search-sizes .button{min-width:44px;padding:.4rem .7rem}
+
+[data-search-size][aria-pressed=true]{background:#294761;border-color:var(--blue);color:var(--text)}
