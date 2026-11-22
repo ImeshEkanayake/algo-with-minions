@@ -5,7 +5,7 @@
   "description": "A browser-only animated sorting, searching, tree and graph algorithms explorer",
   "scripts": {
     "test": "node tests/engine.test.cjs && node tests/search-engine.test.cjs && node tests/tree-engine.test.cjs && node tests/tree-python-parity.test.cjs && node tests/graph-engine.test.cjs && node tests/graph-python-parity.test.cjs",
-    "test:ui": "node tests/ui.test.mjs && node tests/code-controls.test.mjs && node tests/search-ui.test.mjs && node tests/tree-ui.test.mjs && node tests/graph-ui.test.mjs",
+    "test:ui": "node tests/ui.test.mjs && node tests/code-controls.test.mjs && node tests/search-ui.test.mjs && node tests/tree-ui.test.mjs && node tests/graph-ui.test.mjs && node tests/graph-examples.test.mjs",
     "bundle:trees": "python3 scripts/bundle-tree-programs.py",
     "bundle:graphs": "python3 scripts/bundle-graph-programs.py"
   },
