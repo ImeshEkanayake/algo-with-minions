@@ -1,7 +1,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),{spawnSync}=require('node:child_process');
 const context={};vm.createContext(context);for(const file of ['engine.js','search-engine.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
 const E=context.SearchingEngine,normal=value=>JSON.parse(JSON.stringify(value));
-const examples=[[],[0],[1],[3,2,1],[1,2,3],[-3,-1,-9],[0,-1,1,0],[-2.5,0,3.25,-.25,3.25],[4,4,4,4],[-0,0,-0],[-1e200,1e200,1e-200,-1e-200],[Number.MAX_VALUE,-Number.MAX_VALUE,Number.MIN_VALUE,0]];
+const examples=[Array.from({length:12},(_,i)=>i-6),Array.from({length:16},(_,i)=>(15-i)/4),Array(16).fill(0),[],[0],[1],[3,2,1],[1,2,3],[-3,-1,-9],[0,-1,1,0],[-2.5,0,3.25,-.25,3.25],[4,4,4,4],[-0,0,-0],[-1e200,1e200,1e-200,-1e-200],[Number.MAX_VALUE,-Number.MAX_VALUE,Number.MIN_VALUE,0]];
 let seed=83;for(let trial=0;trial<25;trial++){const a=[];for(let i=0;i<trial%11;i++){seed=seed*16807%2147483647;a.push((seed%81-40)/4);}examples.push(a);}
 let runs=0,states=0;const parity=[];
 for(const meta of E.algorithms){
@@ -24,7 +24,7 @@ for(const meta of E.algorithms){
  console.log(`PASS ${meta.name}`);
 }
 for(const text of ['', '1, 2', 'NaN','Infinity','9007199254740993','1e309'])assert.throws(()=>E.parseTarget(text));for(const [text,value]of [['-2.5',-2.5],['−3',-3],['1e-3',.001],['0',0]])assert.equal(E.parseTarget(text),value);assert(Object.is(E.parseTarget('-0'),-0));
-for(const id of ['binary','ternary'])assert.throws(()=>E.build(id,[2,1],1),/ascending/);assert.throws(()=>E.build('linear',[0],Infinity));
+for(const id of ['binary','ternary'])assert.throws(()=>E.build(id,[2,1],1),/ascending/);assert.throws(()=>E.build('linear',[0],Infinity));assert.throws(()=>E.build('linear',Array(17).fill(0),0));
 const check=E.build('sentinel',[3,1,2],99),untouched=normal(check.events[2]);check.events[1].items[0].v=999;check.events[1].frames[0].locals.a[0]=999;assert.deepEqual(normal(check.events[2]),untouched);
 const python=spawnSync('python3',['-c',`import sys,json,copy
 cases=json.load(sys.stdin)

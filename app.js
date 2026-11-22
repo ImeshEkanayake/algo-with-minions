@@ -43,9 +43,9 @@
   }
   function startRun(id,values,restoreStep=-1,target=state.target){
     const meta=E.algorithms.find(a=>a.id===id),limit=meta.maxLength||10;if(values.length>limit)throw Error(`${meta.name} supports up to ${limit} values. Shorten the array, then choose this algorithm.`);
-    const bundle=E.build(id,values,target);stop();cancelEffects();state.id=id;state.target=target;state.category=meta.collection;state.values=values.slice();state.bundle=bundle;state.cursor=Math.max(-1,Math.min(bundle.events.length-1,restoreStep));state.wasDone=Boolean(snapshot().done);state.celebrated=state.wasDone;state.mode=state.wasDone?'Finished':state.cursor<0?'Ready':'Paused';state.figures.clear();$('stage').replaceChildren();bundle.initial.items.forEach(createFigure);
+    const bundle=E.build(id,values,target);stop();cancelEffects();state.id=id;state.target=target;state.category=meta.collection;state.values=values.slice();state.bundle=bundle;state.cursor=Math.max(-1,Math.min(bundle.events.length-1,restoreStep));state.wasDone=Boolean(snapshot().done);state.celebrated=state.wasDone;state.mode=state.wasDone?'Finished':state.cursor<0?'Ready':'Paused';state.figures.clear();$('stage-viewport').scrollLeft=0;$('stage-viewport').scrollTop=0;$('stage').replaceChildren();bundle.initial.items.forEach(createFigure);
     const searchingNow=meta.collection==='searching';$('sorting-page').hidden=false;$('future-page').hidden=true;setNav(meta.collection);populateSelect(meta.collection);
-    document.querySelector('.setup').dataset.search=String(searchingNow);$('target-label').hidden=!searchingNow;$('target-input').value=number(target);$('search-help').hidden=!searchingNow;$('apply-array').textContent=searchingNow?'Apply input':'Apply array';$('sort-search-input').hidden=!searchingNow;$('search-requirement').textContent=searchingNow?(meta.ordered?'Ascending input required. Sort input explicitly or enter an ascending array.':'Any input order. Linear and sentinel search return the first matching index.'):'';
+    document.querySelector('.setup').dataset.search=String(searchingNow);$('target-label').hidden=!searchingNow;$('target-input').value=number(target);$('search-help').hidden=!searchingNow;$('search-sizes').hidden=!searchingNow;$('apply-array').textContent=searchingNow?'Apply input':'Apply array';$('sort-search-input').hidden=!searchingNow;$('search-requirement').textContent=searchingNow?(meta.ordered?'Ascending input required. Sort input explicitly or enter an ascending array.':'Any input order. Linear and sentinel search return the first matching index.'):'';
     $('detail-label').textContent=searchingNow?'Match returned':'Equal values';$('array-label').textContent=searchingNow?'Array':'Working order';$('search-result').hidden=!searchingNow;$('sorting-legend').hidden=searchingNow;$('searching-legend').hidden=!searchingNow;$('exchanges').hidden=searchingNow;
     $('algorithm-title').textContent=meta.name;$('algorithm-family').textContent=meta.family;$('time-cost').textContent=meta.time;$('space-cost').textContent=meta.space;$('stability').textContent=searchingNow?meta.match:meta.stable?'Stable':'May reorder ties';$('algorithm-description').textContent=meta.description;$('algorithm-select').value=id;$('input-limit').textContent=`Up to ${limit} numbers · negatives, zero & decimals`;$('array-input').value=values.map(number).join(', ');$('input-error').hidden=true;
     for(const button of $('algorithm-menu').children)button.setAttribute('aria-current',String(button.dataset.algorithm===id));buildCode(meta);$('stack-details').open=['quick','merge','heap'].includes(id);render();
@@ -81,7 +81,7 @@
     }
   }
   function renderScene(s){
-    const stage=$('stage'),viewport=$('stage-viewport'),n=s.items.length,width=n<=6?viewport.clientWidth:Math.max(viewport.clientWidth,n*54);stage.style.width=`${width}px`;
+    const stage=$('stage'),viewport=$('stage-viewport'),n=s.items.length,width=n<=6?viewport.clientWidth:Math.max(viewport.clientWidth,n*(isSearch()?44:54));stage.style.width=`${width}px`;
     $('stage-hint').hidden=width<=viewport.clientWidth+2;$('stage-hint').textContent=`Scroll sideways to see all ${n} values.`;
     const slot=width/Math.max(1,n),tree=s.view.type==='heap',recursive=s.view.type==='recursive',counting=s.view.type==='counting',rowHeight=s.view.type==='search'?300:recursive||tree||counting?220:260,base=recursive||tree||counting?32:70;
     const heapDepth=Math.floor(Math.log2(Math.max(1,n))),deepest=Math.max(0,...Object.values(s.depths),...Object.values(s.fixed).map(x=>x.depth)),gather=s.done&&(recursive||tree),finalDepth=tree?heapDepth+1:deepest+1;
@@ -109,6 +109,10 @@
     state.wasDone=Boolean(s.done);
     const active=state.figures.get(s.active.at(-1))||state.figures.get(s.pivotId);
     if(active&&!s.done){const t=parseFloat(active.node.style.top);if(t<viewport.scrollTop||t+170>viewport.scrollTop+viewport.clientHeight)viewport.scrollTop=Math.max(0,t-45);}
+    if(active&&isSearch()){
+      const left=parseFloat(active.node.style.left),right=left+parseFloat(active.node.style.width);
+      if(left<viewport.scrollLeft+8)viewport.scrollLeft=Math.max(0,left-12);else if(right>viewport.scrollLeft+viewport.clientWidth-8)viewport.scrollLeft=right-viewport.clientWidth+12;
+    }
     if(justFinished&&gather)viewport.scrollTo({top:finalDepth*rowHeight-15,behavior:reduced?'auto':'smooth'});
   }
   function renderInspector(s){
@@ -140,11 +144,12 @@
   function closeMenus(){document.querySelectorAll('.sort-menu').forEach(menu=>menu.open=false);}
   function populateSelect(collection){const list=E.algorithms.filter(meta=>meta.collection===collection);if($('algorithm-select').dataset.collection===collection)return;$('algorithm-select').dataset.collection=collection;$('algorithm-select').replaceChildren();for(const meta of list){const option=document.createElement('option');option.value=meta.id;option.textContent=meta.name;$('algorithm-select').append(option);}}
   function setNav(name){document.querySelectorAll('[data-category],#sorting-nav').forEach(button=>{const current=(button.dataset.category||'sorting')===name;if(current)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});}
-  function select(id){try{startRun(id,state.values);save();closeMenus();}catch(e){$('algorithm-select').value=state.id;stop();render();error(e.message);}}
+  function select(id){try{save();const meta=E.algorithms.find(a=>a.id===id),same=meta.collection===state.bundle.meta.collection,remembered=state.sessions[meta.collection],example=meta.collection==='searching'?searchExample(16):{values:[5,1,4,2,8,3],target:state.target};startRun(id,same?state.values:remembered?.values||example.values,-1,same?state.target:remembered?.target??example.target);save();closeMenus();}catch(e){$('algorithm-select').value=state.id;stop();render();error(e.message);}}
+  function searchExample(size){const values=Array.from({length:size},(_,i)=>i*2-size);return {values,target:values[Math.floor((size-1)*.6)]};}
   function category(name){
-    hideTooltip();stop();cancelEffects();closeMenus();
+    hideTooltip();stop();cancelEffects();closeMenus();save();
     if(['sorting','searching'].includes(name)){
-      if(state.category===name){render();return;}const remembered=state.sessions[name];startRun(remembered?.id||(name==='sorting'?'bubble':'linear'),remembered?.values||state.values,remembered?.step??-1,remembered?.target??state.target);save();
+      if(state.category===name){render();return;}const remembered=state.sessions[name],example=name==='searching'?searchExample(16):{values:[5,1,4,2,8,3],target:state.target};startRun(remembered?.id||(name==='sorting'?'bubble':'linear'),remembered?.values||example.values,remembered?.step??-1,remembered?.target??example.target);save();
     }else{state.category=name;$('sorting-page').hidden=true;$('future-page').hidden=false;setNav(name);$('future-title').textContent=name==='trees'?'Trees':'Graphs';$('future-copy').textContent=name==='trees'?'A separate collection for binary search trees, AVL trees, 2–3 trees and multiway search. Tree search, insertion, deletion and rotations will have their own animations.':'A separate collection for breadth-first search, depth-first search, paths and reachability. Graph animations will show visited vertices, frontier queues and stacks.';}
   }
   for(const meta of E.algorithms.filter(a=>a.collection==='sorting')){const button=document.createElement('button');button.type='button';button.dataset.algorithm=meta.id;button.textContent=meta.name;button.addEventListener('click',()=>select(meta.id));$('algorithm-menu').append(button);}
@@ -153,6 +158,7 @@
   const treeNames={bst:'Binary search tree',avl:'AVL tree','two-three':'2–3 tree',multiway:'Multiway search tree'};
   document.querySelectorAll('[data-tree]').forEach(button=>button.addEventListener('click',()=>{category('trees');$('future-title').textContent=treeNames[button.dataset.tree];$('future-copy').textContent=button.dataset.tree==='avl'?'Planned in Trees / Balanced search trees. AVL trees maintain a height balance at every node. This view will animate search, insertion, deletion and the rotations that restore balance.':button.dataset.tree==='two-three'?'Planned in Trees / Balanced search trees. A 2–3 tree holds one or two keys per node and keeps all leaves at the same level. This view will animate search, node splits and merges.':button.dataset.tree==='bst'?'Planned in Trees / Binary search trees. This view will animate left/right search decisions, insertion and the three deletion cases.':'Planned in Trees / Multiway search trees. This view will show comparisons within each node and the branch chosen between its keys.';}));
   function applyInput(sortFirst=false){try{const meta=state.bundle.meta,values=E.parse($('array-input').value,meta.maxLength||10),target=isSearch()?searching.parseTarget($('target-input').value):state.target;if(sortFirst)values.sort((a,b)=>a-b);startRun(state.id,values,-1,target);save();}catch(e){stop();render();error(e.message);}}
+  document.querySelectorAll('[data-search-size]').forEach(button=>button.addEventListener('click',()=>{const example=searchExample(Number(button.dataset.searchSize));startRun(state.id,example.values,-1,example.target);save();}));
   $('algorithm-select').addEventListener('change',event=>select(event.target.value));$('apply-array').addEventListener('click',()=>applyInput());$('sort-search-input').addEventListener('click',()=>applyInput(true));for(const id of ['array-input','target-input'])$(id).addEventListener('keydown',e=>{if(e.key==='Enter')applyInput();});
   $('back').addEventListener('click',()=>advanceLine(-1));$('next').addEventListener('click',()=>advanceLine(1));$('play').addEventListener('click',play);$('restart').addEventListener('click',reset);
   $('code-back').addEventListener('click',()=>advanceLine(-1));$('code-next').addEventListener('click',()=>advanceLine(1));$('code-play').addEventListener('click',play);$('code-reset').addEventListener('click',reset);

@@ -51,11 +51,11 @@
             lo = m1 + 1
             hi = m2 - 1
     return -1`)}
-  ].map(meta=>({...meta,collection:'searching'}));
+  ].map(meta=>({...meta,collection:'searching',maxLength:16}));
   function parseTarget(text){const values=global.SortingEngine.parse(text,1);if(values.length!==1)throw Error('Enter one finite number as the target.');return values[0];}
   function build(id,input,key){
     const meta=algorithms.find(a=>a.id===id);if(!meta)throw Error('Unknown searching algorithm.');
-    if(!Array.isArray(input)||input.length>10||input.some(v=>!Number.isFinite(v))||!Number.isFinite(key))throw Error('Use up to 10 finite numbers and a finite target.');
+    if(!Array.isArray(input)||input.length>16||input.some(v=>!Number.isFinite(v))||!Number.isFinite(key))throw Error('Use up to 16 finite numbers and a finite target.');
     if(meta.ordered&&input.some((v,i)=>i>0&&input[i-1]>v))throw Error(`${meta.name} needs an ascending array. Use Sort input or edit your array.`);
     const original=input.slice(),a=input.slice(),items=()=>a.map((v,id)=>({v,id}));
     let locals={a,key},active=[],comparisons=0,lo=0,hi=a.length-1,pointers={},sentinel=null,result=null;
