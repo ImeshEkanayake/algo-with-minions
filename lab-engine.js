@@ -121,14 +121,40 @@
     if(kind==='return')return 'Return from this call; the waiting caller receives its result.';
     return code.startsWith('for ')?'Advance the loop: '+code.replace(/:$/,'')+'.':'Execute '+code+'.';
   }
+  function createTracebackTracker(id){
+    const supported=['edit-distance','grid-sum','knapsack-dp','coin-row','minimum-coins'];
+    const trail=[];let pathLength=0;
+    function visit(cell){if(cell.every(Number.isInteger)&&cell.every(n=>n>=0)&&cell.join(',')!==trail.at(-1)?.join(','))trail.push(cell);}
+    return (locals,table,code,kind)=>{
+      if(!supported.includes(id)||!table?.length)return null;
+      const matrix=Array.isArray(table[0]),reconstructing=Array.isArray(id==='edit-distance'||id==='grid-sum'?locals.path:locals.chosen);
+      if(!reconstructing)return null;
+      if(!trail.length)visit(matrix?[table.length-1,table[0].length-1]:[table.length-1]);
+      if(id==='edit-distance'||id==='grid-sum'){
+        for(const point of locals.path.slice(pathLength))visit(point.slice(0,2));pathLength=locals.path.length;
+        if((kind==='loop-true'||kind==='loop-false')&&code.startsWith('while i '))visit([locals.i,locals.j]);
+        // A diagonal move updates i and j on separate Python lines. Move the
+        // actor between actual traceback cells, without inventing a side-step.
+        if(id==='edit-distance'&&locals.i===0&&locals.j===0)visit([0,0]);
+      }else if(id==='knapsack-dp'){
+        if(code.startsWith('for i in range(n, 0, -1)'))visit([kind==='loop-false'?0:locals.i,locals.w]);
+      }else if(id==='coin-row'){
+        if(code==='while i > 0:')visit([locals.i]);
+      }else if(id==='minimum-coins'){
+        if(code==='while value > 0:')visit([locals.value]);
+      }
+      return {cell:trail.at(-1).slice(),trail:trail.map(cell=>cell.slice())};
+    };
+  }
   function build(id,raw){const meta=byId.get(id),config=validate(id,raw),inputs=prepare(id,config),source=global.LabPrograms[id];let program=cache.get(id);if(!program){program=global.TreeRuntime.compile(source);cache.set(id,program);}
     const constants=new WeakSet();function freeze(x){if(!x||typeof x!=='object'||constants.has(x))return;constants.add(x);Object.values(x).forEach(freeze);Object.freeze(x);}Object.values(inputs).forEach(freeze);freeze(config);
     const copies=new WeakMap();function copy(x,memo=new Map()){if(!x||typeof x!=='object'||constants.has(x))return x;if(memo.has(x))return memo.get(x);const out=Array.isArray(x)?[]:{};memo.set(x,out);for(const[k,v]of Object.entries(x))out[k]=copy(v,memo);const prior=copies.get(x),keys=Object.keys(out);if(prior&&keys.length===Object.keys(prior).length&&keys.every(k=>out[k]===prior[k])){memo.set(x,prior);return prior;}Object.freeze(out);copies.set(x,out);return out;}
-    const machine=new global.TreeRuntime.Machine(program,{...inputs},null),events=[],mainName=source.match(/\nresult = (\w+)\(/)[1];let lastMain={},previous=null;
+    const machine=new global.TreeRuntime.Machine(program,{...inputs},null),events=[],mainName=source.match(/\nresult = (\w+)\(/)[1],trackTraceback=createTracebackTracker(id);let lastMain={},previous=null;
     function snap(line,kind){const main=machine.frames.find(f=>f.name===mainName);if(main)lastMain=main.locals;const current=machine.frame(),live=machine.frames.length>1?{...lastMain,...current.locals}:Object.keys(lastMain).length?{...lastMain,...('result'in current.locals?{result:current.locals.result}:{})}:current.locals,locals=copy(live),code=line?program.lines[line-1].trim():'',table=locals.dp||locals.memo||locals.prefix||null,changed=[];
       if(Array.isArray(table))for(let i=0;i<table.length;i++){if(Array.isArray(table[i])){for(let j=0;j<table[i].length;j++)if(!Object.is(table[i][j],previous?.view.table?.[i]?.[j]))changed.push(i+','+j);}else if(!Object.is(table[i],previous?.view.table?.[i]))changed.push(String(i));}
-      const quick=kind==='return'||changed.length>0||kind==='assign'&&/^(a\[|table\[|left\[|right\[|partner\[|codes\[|x =|remaining -=|candidates =|remainder =|best\[|root =|lo =|hi =)/.test(code)||kind==='call'&&/(append|pop)/.test(code)||kind==='condition-true'||kind==='condition-false';
-      const s={line,text:explain(id,line,kind,locals,program),quick:Boolean(quick),items:[],frames:copy(machine.frames),fixed:{},nodes:[],depths:{},active:[],pivotId:null,heldId:null,comparisons:machine.steps,exchanges:0,view:{type:'lab',algorithm:id,kind:meta.visual,config,inputs,locals,table,changed,code,stepKind:kind,success:true}};previous=s;return s;}
+      const traceback=copy(trackTraceback(locals,table,code,kind)),tracebackMoved=Boolean(traceback&&traceback.cell.join(',')!==previous?.view.traceback?.cell.join(','));
+      const quick=tracebackMoved||kind==='return'||changed.length>0||kind==='assign'&&/^(a\[|table\[|left\[|right\[|partner\[|codes\[|x =|remaining -=|candidates =|remainder =|best\[|root =|lo =|hi =)/.test(code)||kind==='call'&&/(append|pop)/.test(code)||kind==='condition-true'||kind==='condition-false';
+      const s={line,text:explain(id,line,kind,locals,program),quick:Boolean(quick),items:[],frames:copy(machine.frames),fixed:{},nodes:[],depths:{},active:[],pivotId:null,heldId:null,comparisons:machine.steps,exchanges:0,view:{type:'lab',algorithm:id,kind:meta.visual,config,inputs,locals,table,changed,code,stepKind:kind,success:true,traceback}};previous=s;return s;}
     const initial=snap(null,'ready');machine.onStep=(line,kind)=>{const s=snap(line,kind);events.push(s);return s;};for(const ignored of machine.run()){}
     const last=events.at(-1),result=clone(machine.frames[0].locals.result);last.done=true;last.quick=true;last.result=result;last.text=summary(id,result,config);last.view.success=!(id==='minimum-coins'&&result[0]<0||id==='greedy-coins'&&result[1]!==0||['gradient-descent','newton-raphson'].includes(id)&&!result[1]);
     return {meta:{...meta,code:program.lines},initial,events,source,inputs:clone(inputs),config};
