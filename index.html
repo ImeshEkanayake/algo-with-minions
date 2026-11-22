@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0a101b">
+  <meta name="description" content="Explore sorting algorithms with animated characters, reversible execution, Python code and live variables. Runs entirely in your browser.">
+  <title>Algo with Minions · Algorithm explorer</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="engine.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#sorting" aria-label="Algo with Minions home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Algo with <strong>Minions</strong></span></a>
+    <nav class="category-nav" aria-label="Algorithm categories">
+      <details id="sorting-menu" class="sort-menu"><summary id="sorting-nav">Sorting <span class="chevron" aria-hidden="true"></span></summary><div class="algorithm-menu" id="algorithm-menu" aria-label="Sorting algorithms"></div></details>
+      <button type="button" data-category="searching">Searching <span class="soon">Next</span></button>
+      <button type="button" data-category="graphs">Graphs <span class="soon">Later</span></button>
+    </nav>
+    <span class="browser-note">A visual algorithms lab</span>
+  </header>
+  <main>
+    <section id="sorting-page" aria-labelledby="algorithm-title">
+      <div class="page-heading"><div><p class="eyebrow" id="algorithm-family">Brute force</p><h1 id="algorithm-title">Bubble sort</h1></div><div class="algorithm-facts"><span><small>Worst-case time</small><strong id="time-cost">O(n²)</strong></span><span><small>Extra space</small><strong id="space-cost">O(1)</strong></span><span><small>Equal values</small><strong id="stability">Stable</strong></span></div></div>
+      <p id="algorithm-description" class="description"></p>
+      <div class="setup panel">
+        <label class="array-label" for="array-input"><span>Your array <small id="input-limit">Up to 10 numbers · negatives, zero & decimals</small></span><input id="array-input" value="5, 1, 4, 2, 8, 3" autocomplete="off" spellcheck="false" aria-describedby="input-error"></label>
+        <button id="apply-array" type="button" class="button secondary">Apply array</button>
+        <label class="algorithm-label" for="algorithm-select"><span>Algorithm</span><select id="algorithm-select"></select></label>
+      </div>
+      <p class="error" id="input-error" role="alert" hidden></p>
+      <div class="playback" aria-label="Execution controls">
+        <button id="back" type="button" class="button secondary" aria-label="Previous executed line">Back<span class="wide-word"> line</span></button>
+        <button id="next" type="button" class="button secondary" aria-label="Next executed line">Next<span class="wide-word"> line</span></button>
+        <button id="play" type="button" class="button primary"><span aria-hidden="true">▶</span> Quick run</button>
+        <button id="restart" type="button" class="button ghost">Restart</button>
+        <span class="timing">1 second / algorithm step</span>
+        <div class="execution-position"><span id="mode" class="mode">Ready</span><span id="step-count">Step 0 / 0</span></div>
+      </div>
+      <div class="workbench">
+        <section class="visual-column" aria-label="Animated algorithm">
+          <div class="scene panel">
+            <div class="panel-heading"><h2>Watch it happen</h2><div class="counters"><span id="comparisons">0 comparisons</span><span id="exchanges">0 exchanges</span></div></div>
+            <div class="array-readout"><span>Working order</span><code id="array-readout"></code></div>
+            <p id="stage-hint" class="stage-hint" hidden></p>
+            <div id="stage-viewport" class="stage-viewport" tabindex="0" role="region" aria-label="Algorithm animation; scroll to explore deeper levels"><div id="stage" class="stage" role="img" aria-label="Array characters"></div></div>
+            <div class="legend"><span><i class="legend-pivot"></i> Pivot / current target</span><span><i class="legend-hat"></i> Confirmed final position</span><span>A, B, … identify the original values</span></div>
+          </div>
+          <div class="operation panel"><span class="operation-label">This step</span><p id="operation" aria-live="polite">Choose Quick run or Next line to begin.</p></div>
+          <section id="counting-panel" class="panel counting-panel" hidden aria-label="Counting sort counters"><div class="panel-heading"><h2 id="counting-phase">Frequencies</h2></div><div id="buckets" class="buckets"></div></section>
+          <p class="visual-note">Characters follow value identities. The inspector shows the code’s actual variables, including temporary arrays and held values.</p>
+        </section>
+        <aside class="inspector" aria-label="Code and execution inspector">
+          <section class="code-panel panel"><div class="panel-heading code-header"><h2>Follow the code</h2><div class="code-controls" aria-label="Code playback controls"><button id="code-back" type="button" aria-label="Previous executed line" title="Back line"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h2v14H5zM18 5v14L8 12z"/></svg></button><button id="code-next" type="button" aria-label="Next executed line" title="Next line"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 5h2v14h-2zM6 5l10 7-10 7z"/></svg></button><button id="code-play" type="button" aria-label="Quick run, one algorithm step per second" title="Quick run"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5l9 7-9 7zM12 5l9 7-9 7z"/></svg></button></div><span class="code-language">Python <span id="current-line"></span></span></div><div id="code" class="code" tabindex="0" role="region" aria-label="Scrollable Python code; active line highlighted"></div><p class="panel-footnote">Animation cues live outside the Python listing.</p></section>
+          <section class="variables-panel panel"><div class="panel-heading"><h2>Live variables</h2><span class="changed-key">Changed this line</span></div><p id="scope" class="scope">Top level</p><dl id="variables" class="variables"></dl><details id="stack-details" class="stack-details"><summary>Call stack <span id="stack-size"></span></summary><ol id="stack"></ol></details></section>
+        </aside>
+      </div>
+    </section>
+    <section id="future-page" class="future-page panel" hidden><span class="eyebrow">THE NEXT CHAPTER</span><h1 id="future-title">Searching</h1><p id="future-copy"></p><button id="return-sorting" class="button primary" type="button">Explore sorting</button></section>
+  </main>
+  <footer><span>One algorithm. Every little step.</span><span>Your arrays stay in this browser.</span></footer>
+</body>
+</html>

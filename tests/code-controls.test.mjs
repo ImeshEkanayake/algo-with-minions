@@ -1,0 +1,17 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{})});
+try{
+ const page=await browser.newPage({viewport:{width:1280,height:1000}});await page.goto((process.env.PREVIEW_URL||'http://127.0.0.1:4318/'));await page.evaluate(()=>localStorage.clear());await page.reload();
+ assert(await page.locator('#code-back').isDisabled());await page.locator('#code-next').click();assert.equal(await page.locator('#current-line').textContent(),'line 1');
+ const s=await page.evaluate(()=>SortingStudio.snapshot());await page.locator('#code-next').click();assert.equal(await page.locator('[data-variable="n"] .current-value').textContent(),'6');await page.locator('#code-back').click();assert.deepEqual(await page.evaluate(()=>SortingStudio.snapshot()),s);
+ await page.locator('#code-play').click();assert.equal(await page.locator('#play').textContent(),'Pause');assert.equal(await page.locator('#code-play').getAttribute('aria-label'),'Pause quick run');await page.locator('#play').click();assert.match(await page.locator('#code-play').getAttribute('aria-label'),/Quick run/);
+ await page.screenshot({path:'test-results/code-controls-desktop.png',fullPage:true});
+ const mobile=await browser.newPage({viewport:{width:320,height:950},isMobile:true,hasTouch:true,deviceScaleFactor:2});await mobile.goto((process.env.PREVIEW_URL||'http://127.0.0.1:4318/'));
+ const bounds=await mobile.evaluate(()=>{const box=e=>{const b=e.getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};return {pageOverflow:document.documentElement.scrollWidth>innerWidth+1,title:box(document.querySelector('.code-header h2')),controls:box(document.querySelector('.code-controls')),language:box(document.querySelector('.code-language')),buttons:[...document.querySelectorAll('.code-controls button')].map(box),viewport:box(document.getElementById('stage-viewport')),figures:[...document.querySelectorAll('.character')].map(box)};});
+ assert(!bounds.pageOverflow);assert(bounds.title.right<=bounds.controls.left+1);assert(bounds.controls.right<=bounds.language.left+1);for(const b of bounds.buttons){assert(b.width>=44);assert(b.height>=44);}for(const figure of bounds.figures){assert(figure.left>=bounds.viewport.left-1);assert(figure.right<=bounds.viewport.right+1);}
+ await mobile.locator('#code-next').click();assert.equal(await mobile.locator('#current-line').textContent(),'line 1');await mobile.locator('.code-header').screenshot({path:'test-results/code-controls-phone.png'});
+ const errors=[];mobile.on('pageerror',e=>errors.push(e.message));await mobile.selectOption('#algorithm-select','quick');await mobile.locator('#array-input').fill('2, 1');await mobile.locator('#apply-array').click();
+ await mobile.locator('#code-next').evaluate(button=>{let n=0;while(!button.disabled&&n++<300)button.click();});assert.equal(await mobile.locator('#code-next').isDisabled(),true);assert.equal(await mobile.locator('#code-play').isDisabled(),true);await mobile.locator('#code-back').click();assert.equal(await mobile.locator('#code-next').isEnabled(),true);assert.deepEqual(errors,[]);
+ console.log('PASS: code-header back/next/play synchronization, pause icon, completion states, 44px touch targets, header containment, and all six values visible on a 320px touch screen.');
+}finally{await browser.close();}
