@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0a101b">
-  <meta name="description" content="Explore sorting, searching and tree algorithms with animated characters, reversible execution, Python code and live variables. Runs entirely in your browser.">
+  <meta name="description" content="Explore sorting, searching, tree and graph algorithms with animated characters, reversible execution, Python code and live variables. Runs entirely in your browser.">
   <title>Algo with Minions · Algorithm explorer</title>
   <link rel="stylesheet" href="styles.css">
   <script src="engine.js" defer></script>
@@ -13,6 +13,9 @@
   <script src="tree-programs.js" defer></script>
   <script src="tree-engine.js" defer></script>
   <script src="tree-renderer.js" defer></script>
+  <script src="graph-programs.js" defer></script>
+  <script src="graph-engine.js" defer></script>
+  <script src="graph-renderer.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -22,7 +25,7 @@
       <details id="sorting-menu" class="sort-menu"><summary id="sorting-nav">Sorting <span class="chevron" aria-hidden="true"></span></summary><div class="algorithm-menu" id="algorithm-menu" aria-label="Sorting algorithms"></div></details>
       <details id="searching-menu" class="sort-menu"><summary data-category="searching">Searching <span class="chevron" aria-hidden="true"></span></summary><div id="searching-algorithm-menu" class="algorithm-menu" aria-label="Searching algorithms"></div></details>
       <details id="trees-menu" class="sort-menu"><summary data-category="trees">Trees <span class="chevron" aria-hidden="true"></span></summary><div class="algorithm-menu tree-menu" aria-label="Tree algorithms"><p class="menu-group">Binary search trees</p><button type="button" data-tree="bst">Binary search tree</button><p class="menu-group">Balanced search trees</p><button type="button" data-tree="avl">AVL tree</button><button type="button" data-tree="two-three">2–3 tree</button><p class="menu-group">Multiway search trees</p><button type="button" data-tree="multiway">General multiway tree</button></div></details>
-      <button type="button" data-category="graphs">Graphs</button>
+      <details id="graphs-menu" class="sort-menu"><summary data-category="graphs">Graphs <span class="chevron" aria-hidden="true"></span></summary><div id="graph-algorithm-menu" class="algorithm-menu graph-menu" aria-label="Graph algorithms"></div></details>
     </nav>
     <span class="browser-note">A visual algorithms lab</span>
   </header>
@@ -45,6 +48,22 @@
         <p class="tree-policy">Each run starts from the insertion order above. Duplicate keys are ignored. Choose Build from empty to watch construction.</p>
         <div class="tree-samples" role="group" aria-label="Example tree sizes"><span>Example tree</span><button type="button" class="button secondary" data-tree-size="8">8 keys</button><button type="button" class="button secondary" data-tree-size="12">12 keys</button><button type="button" class="button secondary" data-tree-size="16">16 keys</button></div>
       </div>
+      <div id="graph-controls" class="graph-controls panel" hidden>
+        <details id="graph-input-details" class="graph-input-details"><summary>Edit vertices and edges <span id="graph-input-summary"></span></summary><div class="graph-editor-fields">
+        <label class="graph-vertices-input" for="graph-vertices">Vertices <small>In this order · up to 12 · TSP up to 7</small><input id="graph-vertices" value="A, B, C, D, E, F, G, H" autocomplete="off" spellcheck="false" aria-describedby="input-error"></label>
+        <label class="graph-edges-input" for="graph-edges">Edges <small>One per line: from to weight · omit weight for 1</small><textarea id="graph-edges" rows="6" spellcheck="false" aria-describedby="input-error"></textarea></label>
+        </div></details>
+        <div class="graph-options">
+          <label class="graph-directed-label"><input id="graph-directed" type="checkbox"> Directed</label>
+          <label for="graph-source">Start / source<select id="graph-source"></select></label>
+          <label id="graph-sink-field" for="graph-sink">Destination / sink<select id="graph-sink"></select></label>
+          <label for="graph-example">Worked example<select id="graph-example"><option value="">Custom graph</option><option value="traversal">Traversal · 8 vertices</option><option value="weighted">Weighted · 8 vertices</option><option value="disconnected">Disconnected · zero &amp; negative edges</option><option value="dag">Directed acyclic graph</option><option value="cycle">Directed cycle</option><option value="negative">Negative edges · no cycle</option><option value="negative-cycle">Negative cycle</option><option value="flow">Flow · undo an earlier choice</option><option value="colouring">Colouring · 7 vertices</option><option value="tsp">Tour · 5 vertices</option><option value="empty">Empty graph</option></select></label>
+          <label id="graph-colour-count-field" for="graph-colour-count">Available colours<select id="graph-colour-count"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
+          <label id="graph-colours-field" for="graph-colours">Initial colours <small>One number 1–k per vertex · blank = all 1</small><input id="graph-colours" autocomplete="off" spellcheck="false" aria-describedby="input-error"></label>
+          <button id="apply-graph" type="button" class="button secondary">Apply graph</button>
+        </div>
+        <p id="graph-help" class="graph-help">Vertex names identify the characters. Neighbours are explored in vertex-list order. Apply edits to start a new run.</p>
+      </div>
       <p class="error" id="input-error" role="alert" hidden></p>
       <div class="playback" aria-label="Execution controls">
         <button id="back" type="button" class="button secondary" aria-label="Previous executed line">Back<span class="wide-word"> line</span></button>
@@ -61,9 +80,12 @@
             <div class="array-readout"><span id="array-label">Working order</span><code id="array-readout"></code></div>
             <div id="search-result" class="search-result" role="status" hidden></div>
             <div id="tree-view-tools" class="tree-view-tools" hidden><span id="tree-state" class="tree-state"></span><button id="tree-zoom-out" class="button secondary" type="button" aria-label="Zoom tree out">−</button><span id="tree-zoom-level" class="tree-zoom-level">100%</span><button id="tree-zoom-in" class="button secondary" type="button" aria-label="Zoom tree in">+</button><button id="tree-center" class="button secondary" type="button">Reset view</button></div>
+            <div id="graph-view-tools" class="tree-view-tools" hidden><span id="graph-state" class="tree-state"></span><button id="graph-zoom-out" class="button secondary" type="button" aria-label="Zoom graph out">−</button><span id="graph-zoom-level" class="tree-zoom-level">100%</span><button id="graph-zoom-in" class="button secondary" type="button" aria-label="Zoom graph in">+</button><button id="graph-center" class="button secondary" type="button">Reset view</button></div>
             <p id="tree-output" class="tree-output" aria-live="polite" hidden></p>
             <p id="stage-hint" class="stage-hint" hidden></p>
             <div id="stage-viewport" class="stage-viewport" tabindex="0" role="region" aria-label="Algorithm animation; scroll to explore deeper levels"><div id="stage" class="stage" role="img" aria-label="Array characters"></div></div>
+            <div id="graph-legend" class="legend" hidden><span><i class="legend-pivot"></i> Current vertex / edge</span><span><i class="legend-match"></i> Visited / accepted</span><span class="graph-dijkstra-legend"><i class="legend-tentative"></i> Tentative predecessor</span><span class="graph-flow-legend"><i class="legend-residual"></i> Reverse residual edge</span><span class="graph-colour-legend"><i class="legend-conflict"></i> Colour conflict</span><span>Labels keep vertex identities</span></div>
+            <div id="graph-data" class="graph-data" hidden></div>
             <div id="sorting-legend" class="legend"><span><i class="legend-pivot"></i> Pivot / current target</span><span><i class="legend-hat"></i> Confirmed final position</span><span>A, B, … identify the original values</span></div>
             <div id="searching-legend" class="legend" hidden><span><i class="legend-pivot"></i> Current probe</span><span><i class="legend-match"></i> Match confirmed</span><span><i class="legend-eliminated"></i> Eliminated</span><span>A, B, … identify original positions</span></div>
             <div id="tree-legend" class="legend" hidden><span><i class="legend-pivot"></i> Active reference</span><span><i class="legend-link"></i> Reconnected link</span><span><i class="legend-held"></i> Held by references</span><span><i class="legend-match"></i> Match / visited</span><span>Letters track keys; N-labels identify nodes</span></div>
@@ -73,14 +95,14 @@
           <p class="visual-note">Characters follow value identities. The inspector shows the code’s actual variables, including temporary arrays and held values.</p>
         </section>
         <aside class="inspector" aria-label="Code and execution inspector">
-          <section class="code-panel panel"><div class="panel-heading code-header"><h2>Follow the code</h2><div class="code-controls" aria-label="Code playback controls"><button id="code-back" type="button" aria-label="Previous executed line" data-tooltip="Back line: restore the previous executed line."><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h2v14H5zM18 5v14L8 12z"/></svg></button><button id="code-next" type="button" aria-label="Next executed line" data-tooltip="Next line: execute one Python line."><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 5h2v14h-2zM6 5l10 7-10 7z"/></svg></button><button id="code-play" type="button" aria-label="Quick run, one algorithm step per second" data-tooltip="Quick run: advance one algorithm step per second."><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5l9 7-9 7zM12 5l9 7-9 7z"/></svg></button><button id="code-reset" type="button" aria-label="Reset algorithm" data-tooltip="Reset: restart this algorithm with the same input array."><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7a8 8 0 1 1-1 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 2v7h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><span class="code-language">Python <span id="current-line"></span></span></div><div id="code" class="code" tabindex="0" role="region" aria-label="Scrollable Python code; active line highlighted"></div><p class="panel-footnote">Animation cues live outside the Python listing.</p></section>
+          <section class="code-panel panel"><div class="panel-heading code-header"><h2>Follow the code</h2><div class="code-controls" aria-label="Code playback controls"><button id="code-back" type="button" aria-label="Previous executed line" data-tooltip="Back line: restore the previous executed line."><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h2v14H5zM18 5v14L8 12z"/></svg></button><button id="code-next" type="button" aria-label="Next executed line" data-tooltip="Next line: execute one Python line."><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 5h2v14h-2zM6 5l10 7-10 7z"/></svg></button><button id="code-play" type="button" aria-label="Quick run, one algorithm step per second" data-tooltip="Quick run: advance one algorithm step per second."><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5l9 7-9 7zM12 5l9 7-9 7z"/></svg></button><button id="code-reset" type="button" aria-label="Reset algorithm" data-tooltip="Reset: restart this algorithm with the same input."><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7a8 8 0 1 1-1 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 2v7h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><span class="code-language">Python <span id="current-line"></span></span></div><div id="code" class="code" tabindex="0" role="region" aria-label="Scrollable Python code; active line highlighted"></div><p class="panel-footnote">Animation cues live outside the Python listing.</p></section>
           <section class="variables-panel panel"><div class="panel-heading"><h2>Live variables</h2><span class="changed-key">Changed this line</span></div><p id="scope" class="scope">Top level</p><dl id="variables" class="variables"></dl><details id="stack-details" class="stack-details"><summary>Call stack <span id="stack-size"></span></summary><ol id="stack"></ol></details></section>
         </aside>
       </div>
     </section>
     <section id="future-page" class="future-page panel" hidden><span class="eyebrow">Collection preview · coming next</span><h1 id="future-title">Searching</h1><p id="future-copy"></p><button id="return-sorting" class="button primary" type="button">Explore sorting</button></section>
   </main>
-  <footer><span>One algorithm. Every little step.</span><span>Your arrays stay in this browser.</span></footer>
+  <footer><span>One algorithm. Every little step.</span><span>Your inputs stay in this browser.</span></footer>
   <div id="control-tooltip" class="control-tooltip" role="tooltip" hidden></div>
 </body>
 </html>

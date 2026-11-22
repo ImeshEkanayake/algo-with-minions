@@ -1,6 +1,6 @@
 # Algo with Minions
 
-A responsive, front-end-only sorting, searching and tree algorithms explorer. Open `index.html` in a modern browser, or serve this directory as a static website. No build, database or external assets are required. Array input and saved preferences remain in the browser.
+A responsive, front-end-only sorting, searching, tree and graph algorithms explorer. Open `index.html` in a modern browser, or serve this directory as a static website. No build, database or external assets are required. Array input and saved preferences remain in the browser.
 
 Sorting: bubble, selection, insertion, merge, quick, heap, ordered-key counting, pancake and exhaustive sorting.
 
@@ -14,16 +14,27 @@ Trees: BSTs, AVL trees, 2–3 trees, and balanced multiway trees (orders 3–6).
 
 The tree programs displayed in the Python panel are executed by a small browser-local interpreter for the trusted bundled programs. There is no Python server or arbitrary code execution input. Sources live in `tree-sources/`; regenerate their browser bundle with `npm run bundle:trees` after editing. The Python parity test verifies line execution and locals against actual Python. Multiway search is covered in the course; the balanced B-tree insertion/deletion implementation extends that demonstration.
 
-Graphs remains a collection preview, and hashing remains a planned searching extension. This release focuses on Trees.
+Graphs: 13 course demonstrations grouped into traversal (BFS/DFS), source-removal topological ordering, Prim/Kruskal minimum spanning forests, Dijkstra, Warshall, Floyd–Warshall (course extension), Ford–Fulkerson with DFS paths, Edmonds–Karp with BFS paths, greedy colouring and local recolouring (tutorial extras), and exhaustive travelling-salesman search. All use the shared reversible Python controls, live variables, persistence, pause/resume, and completion effects.
+
+Edit up to 12 named vertices and 60 edges, with optional direction and weights. Missing pairs have no edge; zero is a real weight. Weights may be negative or fractional (magnitude at most 1e9), except Dijkstra rejects negatives and flow requires integer capacities 0–1000. TSP is limited to 7 vertices to keep exhaustive traces usable; a one-vertex graph has a zero-length tour. Colouring rejects self-loops; directed cycles remain valid inputs for topological sort and demonstrate failure. Input errors preserve the current history. Graphs allow isolated vertices, disconnected components, directed antiparallel edges and empty inputs. Duplicate edges are rejected explicitly. Flow uses net antisymmetric flow, so residual paths can cancel earlier choices even when both original directions exist.
+
+The graph scene preserves vertex identities and displays current/visited/settled states, connecting edges, colours and reverse residual edges. Queues, recursion paths, traversal outputs, accepted edges, distances, transitive-closure/all-pairs/residual matrices and minimum-cut certificates follow the actual source variables. A zero-length path makes every Warshall diagonal true; Floyd–Warshall reports negative cycles and marks every affected pair undefined. Local recolouring explicitly reports a local minimum when no single recolouring improves the conflict count; this is not a proof of infeasibility. Neighbours and ties use vertex input order. Python uses 0-based indices, mapped to vertex labels above the scene.
+
+Graph history shares frozen input arrays and unchanged frame values, reducing memory for longer traces without retaining mutable execution state.
+
+Graph sources live in `graph-sources/` and use the same browser-local trusted Python interpreter as Trees. Run `npm run bundle:graphs` after editing them. No backend or network execution is used. Hashing remains a planned searching extension.
 
 Validation:
 
 - `node tests/engine.test.cjs`: 411 algorithm/input runs and 40,146 immutable snapshots, including negative/positive values, zero, decimals, duplicates, extremes and empty arrays.
 - `node tests/search-engine.test.cjs`: 1,136 searches and 16,973 snapshots, including sentinel restoration, duplicate/missing targets, extremes and signed zero. A Python 3 differential check executes the displayed source and compares all lines and locals against 72 JavaScript traces. Python is a development verification dependency only.
-- `tests/search-ui.test.mjs`: all four searching flows, target/ordering validation, exact history, signed-zero persistence, reset and playback, grouped tree menus, graph preview, ten desktop widths and six touch widths.
+- `tests/search-ui.test.mjs`: all four searching flows, target/ordering validation, exact history, signed-zero persistence, reset and playback, grouped tree menus, working Graphs navigation, ten desktop widths and six touch widths.
 - `node tests/tree-engine.test.cjs`: 3,458 tree operations and 150,159 snapshots, checking BST ordering, AVL balance/stored heights, multiway occupancy and equal leaf depth, traversals, deletions, duplicates and immutable history.
 - `node tests/tree-python-parity.test.cjs`: 49 complete traces agree with actual Python lines, references, locals and call stacks.
 - `tests/tree-ui.test.mjs`: all four families and seven operations, worked examples, exact playback history, zoom, persistence, and desktop/touch containment.
+- `node tests/graph-engine.test.cjs`: independent traversal, shortest-path, exhaustive spanning-forest/tour and min-cut oracles, plus colouring validity/local minima, cycles, reverse flow, numeric inputs and immutable histories.
+- `node tests/graph-python-parity.test.cjs`: 31 full traces (including empty, cyclic, negative-cycle and disconnected inputs) agree with actual Python line execution, locals and call stacks.
+- `tests/graph-ui.test.mjs`: all 13 demonstrations, exact Back/Forward, reset, pause/resume, persistence, validation, residual reverse edges and responsive desktop/touch layouts.
 - Browser checks in `tests/ui.test.mjs`: nine sorting flows, exact backward/forward restoration, playback, input validation, recursion and containment at 10 widths from 320 to 1440 pixels.
 - `tests/code-controls.test.mjs`: synchronized header controls, pause state and touch-screen containment with 44-pixel controls.
 

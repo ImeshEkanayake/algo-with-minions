@@ -79,7 +79,7 @@
     namespace(value){const id='N'+this.nextNode++;this.nodeIds.set(value,id);this.nodes.set(id,value);if(Array.isArray(value.keys))this.keyLists.add(value.keys);const keys='key'in value?[value.key]:value.keys||[];for(const key of keys)this.keyId(key);return value;}
     keyId(value){if(!this.keyIds.has(value))this.keyIds.set(value,this.nextKey++);return this.keyIds.get(value);}
     frame(){return this.frames.at(-1);}
-    lookup(name){const frame=this.frame();if(name in frame.locals)return frame.locals[name];if(name in this.frames[0].locals)return this.frames[0].locals[name];if(this.program.functions.has(name))return {function:name};if(['len','range','max','min','abs','SimpleNamespace'].includes(name))return {builtin:name};throw Error('Unknown Python name '+name);}
+    lookup(name){const frame=this.frame();if(name in frame.locals)return frame.locals[name];if(name in this.frames[0].locals)return this.frames[0].locals[name];if(this.program.functions.has(name))return {function:name};if(['len','range','max','min','abs','float','sorted','SimpleNamespace'].includes(name))return {builtin:name};throw Error('Unknown Python name '+name);}
     attr(target,name){
       if(target===null)throw Error('Cannot read '+name+' on None');
       const nodeId=this.nodeIds.get(target);if(nodeId){this.accessed.add(nodeId);this.visited.add(nodeId);}
@@ -97,13 +97,13 @@
       if(node.type==='binary'){
         const a=yield* this.evaluate(node.left);if(node.op==='and')return truth(a)?yield* this.evaluate(node.right):a;if(node.op==='or')return truth(a)?a:yield* this.evaluate(node.right);
         const b=yield* this.evaluate(node.right);if(['==','!=','<','>','<=','>='].includes(node.op)&&(hasKey(node.left)||hasKey(node.right)))this.comparisons++;
-        switch(node.op){case'+':return a+b;case'-':return a-b;case'*':return a*b;case'/':return a/b;case'//':return Math.floor(a/b);case'%':return ((a%b)+b)%b;case'==':return same(a,b);case'!=':return !same(a,b);case'<':return a<b;case'>':return a>b;case'<=':return a<=b;case'>=':return a>=b;case'is':return a===b;case'is not':return a!==b;case'in':return b.includes(a);}
+        switch(node.op){case'+':return Array.isArray(a)&&Array.isArray(b)?a.concat(b):a+b;case'-':return a-b;case'*':{if(Array.isArray(a)||Array.isArray(b)){const list=Array.isArray(a)?a:b,count=Array.isArray(a)?b:a;if(!Number.isInteger(count)||count>10000)throw Error('Invalid Python list repeat');const out=[];for(let i=0;i<count;i++)out.push(...list);return out;}return a*b;}case'/':return a/b;case'//':return Math.floor(a/b);case'%':return ((a%b)+b)%b;case'==':return same(a,b);case'!=':return !same(a,b);case'<':return a<b;case'>':return a>b;case'<=':return a<=b;case'>=':return a>=b;case'is':return a===b;case'is not':return a!==b;case'in':return b.includes(a);}
       }
       if(node.type==='call'){
         const callable=yield* this.evaluate(node.target),args=[];for(const arg of node.args)args.push(yield* this.evaluate(arg));const named={};for(const [name,arg]of node.named)named[name]=yield* this.evaluate(arg);
         if(callable.function)return yield* this.call(callable.function,args);
         if(callable.builtin){
-          switch(callable.builtin){case'len':return args[0].length;case'abs':return Math.abs(args[0]);case'max':return Math.max(...args);case'min':return Math.min(...args);case'range':{const start=args.length>1?args[0]:0,end=args.length>1?args[1]:args[0],step=args[2]??1,result=[];for(let i=start;step>0?i<end:i>end;i+=step)result.push(i);return result;}case'SimpleNamespace':return this.namespace({...named});}
+          switch(callable.builtin){case'len':return args[0].length;case'float':return args[0]==='inf'?Infinity:args[0]==='-inf'?-Infinity:Number(args[0]);case'sorted':{const compare=(a,b)=>{if(Array.isArray(a)&&Array.isArray(b)){for(let i=0;i<Math.min(a.length,b.length);i++){const c=compare(a[i],b[i]);if(c)return c;}return a.length-b.length;}return a<b?-1:a>b?1:0;};return args[0].slice().sort(compare);}case'abs':return Math.abs(args[0]);case'max':return Math.max(...args);case'min':return Math.min(...args);case'range':{const start=args.length>1?args[0]:0,end=args.length>1?args[1]:args[0],step=args[2]??1,result=[];for(let i=start;step>0?i<end:i>end;i+=step)result.push(i);return result;}case'SimpleNamespace':return this.namespace({...named});}
         }
         if(callable.method){const list=callable.owner;switch(callable.method){case'append':list.push(args[0]);if(this.keyLists.has(list))this.accessedKeys.add(this.keyId(args[0]));return null;case'insert':{const index=args[0]<0?Math.max(0,list.length+args[0]):Math.min(list.length,args[0]);list.splice(index,0,args[1]);if(this.keyLists.has(list))this.accessedKeys.add(this.keyId(args[1]));return null;}case'pop':{let index=args[0]??-1;if(index<0)index+=list.length;if(index<0||index>=list.length)throw Error('Python pop index out of range');const value=list.splice(index,1)[0];if(this.keyLists.has(list))this.accessedKeys.add(this.keyId(value));return value;}}}
         throw Error('Unsupported Python call');
@@ -116,7 +116,7 @@
       if(target.type==='index'){const list=yield* this.evaluate(target.target);let index=yield* this.evaluate(target.index);if(index<0)index+=list.length;if(index<0||index>=list.length)throw Error('Python assignment index out of range');list[index]=value;return;}throw Error('Unsupported assignment');
     }
     *emit(line,kind){
-      if(++this.steps>150000)throw Error('Tree trace exceeded its safety limit.');
+      if(++this.steps>150000)throw Error('Trace exceeded its safety limit. Try a smaller graph or capacities.');
       if(this.onStep)yield this.onStep(line,kind,this);
       this.accessed.clear();this.accessedKeys.clear();
     }
