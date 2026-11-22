@@ -1,6 +1,6 @@
 # Algo with Minions
 
-A responsive, front-end-only sorting, searching, tree and graph algorithms explorer. Open `index.html` in a modern browser, or serve this directory as a static website. No build, database or external assets are required. Array input and saved preferences remain in the browser.
+A responsive, front-end-only algorithms explorer with Sorting, Searching, Trees, Graphs, Dynamic Programming, Hashing, Optimization and Mathematics. The 61 menu entries cover all 63 demonstrations in the original course plan through shared tree operations, with several additional demonstrations. Open `index.html` in a modern browser, or serve this directory as a static website. No build, database or external assets are required. Array input and saved preferences remain in the browser.
 
 Sorting: bubble, selection, insertion, merge, quick, heap, ordered-key counting, pancake and exhaustive sorting.
 
@@ -26,7 +26,7 @@ The graph scene preserves vertex identities and displays current/visited/settled
 
 Graph history shares frozen input arrays and unchanged frame values, reducing memory for longer traces without retaining mutable execution state.
 
-Graph sources live in `graph-sources/` and use the same browser-local trusted Python interpreter as Trees. Run `npm run bundle:graphs` after editing them. No backend or network execution is used. Hashing remains a planned searching extension.
+Graph sources live in `graph-sources/` and use the same browser-local trusted Python interpreter as Trees. Run `npm run bundle:graphs` after editing them. No backend or network execution is used. The additional algorithm sources use that same trusted interpreter; no user-supplied code is evaluated.
 
 Validation:
 
@@ -45,3 +45,18 @@ Validation:
 Browser tests use Playwright. Install development tools with `npm install` and `npx playwright install chromium`, then serve the repository with `python3 -m http.server 4318`. In another terminal run `npm run test:ui`. You can override `PREVIEW_URL` and set `CHROME_PATH` to use a local Chrome executable. The app itself needs no dependencies. Test screenshots are local-only and ignored by Git.
 
 GitHub Pages publishes the static files from the root of the main branch. Pushes to main update the hosted website. The illustrated characters are original SVG drawings; this project is an unofficial educational demo.
+
+Additional course demonstrations:
+
+- Dynamic Programming and Tables (9): memoised / bottom-up Fibonacci, Levenshtein edit distance, 0/1 knapsack, non-adjacent coin row, monotone grid-path counting with blocked cells, maximum/minimum grid-sum paths, 2D prefix sums with rectangle queries, and minimum-coin change.
+- Hashing (5): separate chaining, linear probing, quadratic probing, double hashing, and rehashing with table growth. Operations support insertion, lookup and deletion; duplicate keys use set semantics, open addressing retains tombstones, and quadratic probe exhaustion is distinguished from a full table.
+- Optimization (5): exhaustive 0/1 knapsack, greedy coin change, Huffman coding, earliest-finish interval scheduling, and Gale–Shapley stable matching. Greedy failure / suboptimality and proposer-optimal matching are explained. Huffman uses a visibly sorted-list queue, with its actual O(n² log n) bound.
+- Mathematics (3): Euclid’s GCD, gradient descent on a configurable convex quadratic, and Newton–Raphson on a configurable quadratic / linear function. Numerical methods report convergence, iteration limits, divergence, and zero derivatives accurately.
+- Searching additions (4): Quickselect with duplicate-aware ranks, bitonic-peak search, divide-and-conquer simultaneous min/max, and lighter-fake-coin search.
+- Tree / heap additions (5): recursive height, direct balanced BST construction from sorted keys, max-heap insertion, extraction, and bottom-up construction. Heap construction and extraction are now independent demonstrations as well as phases of Heapsort.
+
+Each addition has custom fields, relevant named worked examples, reversible exact source-line stepping, synchronized Quick Run/Pause and reset controls, live variables / call stacks, persistence, and an algorithm-specific scene. DP uses dependency / traceback tables; hashing shows bucket portraits and probe logs; tree / heap / Huffman scenes show actual links; matching is bipartite; scheduling uses a common time axis; numerical methods plot their actual recorded iterates. Empty and failure states are explicit. Inputs are bounded by the selected algorithm; integer-only domains reject decimal input instead of changing the mathematical problem. Values represent finite JavaScript numbers within the displayed educational limits.
+
+Sources for these 31 additions are in `lab-sources/`; regenerate `lab-programs.js` with `npm run bundle:labs`. `lab-engine.js` owns schema validation and immutable snapshots, while `lab-renderer.js` and `lab.css` own the scenes and input UI styling. Existing algorithm engines are unchanged.
+
+`course-coverage.json` maps the 63 original Week 4–12 plan rows to menu entries and tree operations. `tests/course-coverage.test.cjs` verifies every row resolves. `tests/lab-engine.test.cjs` checks independent exhaustive, shortest-path, stability, optimality and structure oracles across the additions. `tests/lab-python-parity.test.cjs` checks every line, local and call stack against actual Python for all worked examples, allowing normal floating-point rounding tolerance. `tests/lab-ui.test.mjs` checks desktop and touch flows, custom fields, invalid-input preservation, examples, playback, reload/reset and eight-menu containment. Quick Run tests cover all 61 menu entries.

@@ -1,0 +1,328 @@
+[
+  {
+    "week": 4,
+    "title": "Selection sort",
+    "algorithm": "selection"
+  },
+  {
+    "week": 4,
+    "title": "Bubble sort",
+    "algorithm": "bubble"
+  },
+  {
+    "week": 4,
+    "title": "Exhaustive 0/1 knapsack",
+    "algorithm": "knapsack-exhaustive"
+  },
+  {
+    "week": 4,
+    "title": "Exhaustive travelling-salesman search",
+    "algorithm": "tsp"
+  },
+  {
+    "week": 4,
+    "title": "Breadth-first search (BFS)",
+    "algorithm": "bfs"
+  },
+  {
+    "week": 4,
+    "title": "Depth-first search (DFS)",
+    "algorithm": "dfs"
+  },
+  {
+    "week": 5,
+    "title": "Insertion sort",
+    "algorithm": "insertion"
+  },
+  {
+    "week": 5,
+    "title": "Binary search",
+    "algorithm": "binary"
+  },
+  {
+    "week": 5,
+    "title": "Source-removal topological sort",
+    "algorithm": "topological"
+  },
+  {
+    "week": 5,
+    "title": "BST search",
+    "algorithm": "bst",
+    "operation": "search"
+  },
+  {
+    "week": 5,
+    "title": "BST insertion",
+    "algorithm": "bst",
+    "operation": "insert"
+  },
+  {
+    "week": 5,
+    "title": "BST deletion",
+    "algorithm": "bst",
+    "operation": "delete"
+  },
+  {
+    "week": 5,
+    "title": "Euclid's GCD",
+    "algorithm": "euclid"
+  },
+  {
+    "week": 5,
+    "title": "Lighter-fake-coin search",
+    "algorithm": "fake-coin"
+  },
+  {
+    "week": 5,
+    "title": "Ternary search",
+    "algorithm": "ternary"
+  },
+  {
+    "week": 6,
+    "title": "Merge sort",
+    "algorithm": "merge"
+  },
+  {
+    "week": 6,
+    "title": "Quicksort",
+    "algorithm": "quick"
+  },
+  {
+    "week": 6,
+    "title": "Recursive tree height",
+    "algorithm": "tree-height"
+  },
+  {
+    "week": 6,
+    "title": "Preorder traversal",
+    "algorithm": "bst",
+    "operation": "preorder"
+  },
+  {
+    "week": 6,
+    "title": "Inorder traversal",
+    "algorithm": "bst",
+    "operation": "inorder"
+  },
+  {
+    "week": 6,
+    "title": "Postorder traversal",
+    "algorithm": "bst",
+    "operation": "postorder"
+  },
+  {
+    "week": 6,
+    "title": "Balanced BST from a sorted array",
+    "algorithm": "balanced-bst"
+  },
+  {
+    "week": 7,
+    "title": "Greedy coin change",
+    "algorithm": "greedy-coins"
+  },
+  {
+    "week": 7,
+    "title": "Prim's MST",
+    "algorithm": "prim"
+  },
+  {
+    "week": 7,
+    "title": "Kruskal's MST",
+    "algorithm": "kruskal"
+  },
+  {
+    "week": 7,
+    "title": "Dijkstra's shortest paths",
+    "algorithm": "dijkstra"
+  },
+  {
+    "week": 7,
+    "title": "Huffman coding",
+    "algorithm": "huffman"
+  },
+  {
+    "week": 8,
+    "title": "Memoised Fibonacci",
+    "algorithm": "fibonacci-memo"
+  },
+  {
+    "week": 8,
+    "title": "Bottom-up Fibonacci",
+    "algorithm": "fibonacci-table"
+  },
+  {
+    "week": 8,
+    "title": "Levenshtein edit distance",
+    "algorithm": "edit-distance"
+  },
+  {
+    "week": 8,
+    "title": "DP 0/1 knapsack",
+    "algorithm": "knapsack-dp"
+  },
+  {
+    "week": 8,
+    "title": "Non-adjacent coin-row DP",
+    "algorithm": "coin-row"
+  },
+  {
+    "week": 8,
+    "title": "Monotone grid-path counting",
+    "algorithm": "grid-paths"
+  },
+  {
+    "week": 8,
+    "title": "Maximum/minimum grid-sum DP",
+    "algorithm": "grid-sum"
+  },
+  {
+    "week": 8,
+    "title": "Warshall transitive closure",
+    "algorithm": "warshall"
+  },
+  {
+    "week": 9,
+    "title": "Heap insertion / sift-up",
+    "algorithm": "heap-insert"
+  },
+  {
+    "week": 9,
+    "title": "Heap extraction / sift-down",
+    "algorithm": "heap-extract"
+  },
+  {
+    "week": 9,
+    "title": "Bottom-up heap construction",
+    "algorithm": "heap-build"
+  },
+  {
+    "week": 9,
+    "title": "Heapsort",
+    "algorithm": "heap"
+  },
+  {
+    "week": 9,
+    "title": "AVL insertion and four rotation cases",
+    "algorithm": "avl",
+    "operation": "insert"
+  },
+  {
+    "week": 9,
+    "title": "AVL deletion",
+    "algorithm": "avl",
+    "operation": "delete"
+  },
+  {
+    "week": 9,
+    "title": "2–3 tree insertion",
+    "algorithm": "two-three",
+    "operation": "insert"
+  },
+  {
+    "week": 9,
+    "title": "2–3 tree deletion",
+    "algorithm": "two-three",
+    "operation": "delete"
+  },
+  {
+    "week": 9,
+    "title": "Multiway balanced search",
+    "algorithm": "multiway",
+    "operation": "search"
+  },
+  {
+    "week": 10,
+    "title": "2D prefix-sum construction and queries",
+    "algorithm": "prefix-sums"
+  },
+  {
+    "week": 10,
+    "title": "Distribution counting sort",
+    "algorithm": "counting"
+  },
+  {
+    "week": 10,
+    "title": "Separate chaining",
+    "algorithm": "hash-chaining"
+  },
+  {
+    "week": 10,
+    "title": "Linear probing",
+    "algorithm": "hash-linear"
+  },
+  {
+    "week": 10,
+    "title": "Double hashing",
+    "algorithm": "hash-double"
+  },
+  {
+    "week": 10,
+    "title": "Quadratic probing",
+    "algorithm": "hash-quadratic"
+  },
+  {
+    "week": 10,
+    "title": "Rehashing",
+    "algorithm": "hash-rehash"
+  },
+  {
+    "week": 11,
+    "title": "Gradient descent",
+    "algorithm": "gradient-descent"
+  },
+  {
+    "week": 11,
+    "title": "Newton–Raphson",
+    "algorithm": "newton-raphson"
+  },
+  {
+    "week": 11,
+    "title": "Ford–Fulkerson",
+    "algorithm": "ford-fulkerson"
+  },
+  {
+    "week": 11,
+    "title": "Edmonds–Karp",
+    "algorithm": "edmonds-karp"
+  },
+  {
+    "week": 11,
+    "title": "Gale–Shapley",
+    "algorithm": "gale-shapley"
+  },
+  {
+    "week": 11,
+    "title": "Greedy graph colouring",
+    "algorithm": "greedy-colouring"
+  },
+  {
+    "week": 11,
+    "title": "Local recolouring",
+    "algorithm": "local-recolouring"
+  },
+  {
+    "week": 12,
+    "title": "Bitonic-peak binary search",
+    "algorithm": "bitonic-peak"
+  },
+  {
+    "week": 12,
+    "title": "Divide-and-conquer simultaneous min/max",
+    "algorithm": "simultaneous-minmax"
+  },
+  {
+    "week": 12,
+    "title": "Earliest-finish interval scheduling",
+    "algorithm": "interval-scheduling"
+  },
+  {
+    "week": 12,
+    "title": "Minimum-coin DP",
+    "algorithm": "minimum-coins"
+  },
+  {
+    "week": 12,
+    "title": "Quickselect",
+    "algorithm": "quickselect"
+  }
+]
