@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 240 240">
+  <title>Algo with Minions</title>
+  <rect width="240" height="240" rx="48" fill="#0A101B"/>
+  <g transform="translate(15 0)">
+    <g fill="#FFD43B"><rect x="20" y="151" width="52" height="65" rx="17"/><rect x="78" y="118" width="52" height="98" rx="17"/><rect x="136" y="80" width="52" height="136" rx="17"/></g>
+    <path d="M46 128 104 92 162 54" fill="none" stroke="#80BDFF" stroke-width="11" stroke-linecap="round"/>
+    <g fill="#80BDFF"><circle cx="46" cy="128" r="18"/><circle cx="104" cy="92" r="18"/><circle cx="162" cy="54" r="18"/></g>
+  </g>
+</svg>
