@@ -1,6 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="240" viewBox="0 0 640 240" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="260" viewBox="0 -20 640 260" class="brand-logo-art" role="img" aria-labelledby="title desc">
   <title id="title">Algo with Minions</title>
-  <desc id="desc">Three ascending yellow sorting bars beneath a connected blue path, beside the Algo with Minions wordmark.</desc>
+  <desc id="desc">A yellow goggle-wearing mascot hops between the three connected dots above ascending sorting bars, beside the Algo with Minions wordmark.</desc>
+  <style>
+    .brand-logo-minion{transform:translate(46px,128px);animation:brand-logo-hop 4.8s infinite;transform-origin:0 0}
+    .brand:hover .brand-logo-minion,.brand:focus-visible .brand-logo-minion,.brand-logo-art:hover .brand-logo-minion{animation-play-state:paused}
+    @keyframes brand-logo-hop{
+      0%,8%{transform:translate(46px,128px);animation-timing-function:ease-out}
+      18%{transform:translate(75px,78px);animation-timing-function:ease-in}
+      28%,36%{transform:translate(104px,92px);animation-timing-function:ease-out}
+      46%{transform:translate(133px,36px);animation-timing-function:ease-in}
+      56%,64%{transform:translate(162px,54px);animation-timing-function:ease-out}
+      74%{transform:translate(133px,36px);animation-timing-function:ease-in}
+      84%,88%{transform:translate(104px,92px);animation-timing-function:ease-out}
+      94%{transform:translate(75px,78px);animation-timing-function:ease-in}
+      100%{transform:translate(46px,128px)}
+    }
+    @media(prefers-reduced-motion:reduce){.brand-logo-minion{animation:none;transform:translate(104px,92px)}}
+  </style>
   <g fill="#FFD43B">
     <rect x="20" y="151" width="52" height="65" rx="17"/>
     <rect x="78" y="118" width="52" height="98" rx="17"/>
@@ -11,5 +27,17 @@
   <g fill="#E9F0F8" font-family="Arial Rounded MT Bold, Trebuchet MS, sans-serif" font-weight="800">
     <text x="208" y="115" font-size="84" letter-spacing="-4" textLength="416" lengthAdjust="spacingAndGlyphs">Algo with</text>
     <text x="208" y="216" font-size="104" letter-spacing="-4" textLength="416" lengthAdjust="spacingAndGlyphs">Minions</text>
+  </g>
+  <g class="brand-logo-minion" aria-hidden="true">
+    <rect x="-15" y="-48" width="30" height="43" rx="15" fill="#FFD43B"/>
+    <path d="M-15-31H15" stroke="#17222F" stroke-width="5"/>
+    <circle cy="-31" r="11" fill="#CBD5E1"/>
+    <circle cy="-31" r="8" fill="#FFFFFF"/>
+    <circle cx="1.5" cy="-31.5" r="3.6" fill="#0A101B"/>
+    <path d="M-5-19Q0-14 5-19" fill="none" stroke="#17222F" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-15-20H15V-8Q0 2-15-8Z" fill="#338BDF"/>
+    <path d="M-11-22V-12M11-22V-12" stroke="#338BDF" stroke-width="4"/>
+    <path d="M-15-18-21-23M15-18 21-23" fill="none" stroke="#FFD43B" stroke-width="4" stroke-linecap="round"/>
+    <path d="M-7-5V0H-12M7-5V0H12" fill="none" stroke="#17222F" stroke-width="4" stroke-linecap="round"/>
   </g>
 </svg>
